@@ -9,6 +9,9 @@ export default{
         online:navigator.onLine,
         trackingOn:false,
         image:null,
+        isNotWorking:true,
+        userIsIdle:false,
+        idleTime:0,
     },
     getters:{
 
@@ -31,6 +34,15 @@ export default{
         },
         SET_TRACKING_ON(state,payload){
             state.trackingOn = payload
+        },
+        SET_IS_NOT_WORKING(state,payload){
+            state.isNotWorking = payload
+        },
+        SET_USER_IS_IDLE(state,payload){
+            state.userIsIdle = payload
+        },
+        SET_IDLE_TIME(state,payload){
+            state.idleTime = payload
         }
     },
     actions:{

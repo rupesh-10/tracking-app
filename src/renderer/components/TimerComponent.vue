@@ -4,7 +4,7 @@
     <h2>GEC Tracker</h2>
     <div class="timer">
         <p class="timer-label">Total Time Spent</p>
-        <p class="timer-text"><span class="hours">{{ hours }}</span>:<span class="minutes">{{ minutes }}</span>:<span class="seconds">{{ seconds }}</span></p>
+        <p class="timer-text"><span class="hours">{{ showTime(hours) }}</span>:<span class="minutes">{{ showTime(minutes) }}</span>:<span class="seconds">{{ showTime(seconds) }}</span></p>
     </div>
     <b-col class="text-center" md="12">
     <button class="btn w-50 start btn-primary" @click="startTimer">{{ trackingOn ? 'Stop' : 'Start' }}</button>
@@ -25,33 +25,48 @@
     <img :src="image" height="160" width="340">
     </b-col>
 </b-row>
+  <b-modal v-if="true" ref="workingModal" hide-header hide-footer >
+      <b-row>
+        <b-col>
+          <h6>Are you still working ? We couldn't track your activity</h6>
+        </b-col>
+      </b-row>
+      <b-row>
+        <b-col style="text-align:right;">
+            <b-button variant="primary" @click="stillWorking">Yes, I'm working</b-button>
+            <b-button variant="danger" class="ml-1" @click="notWorking">Stop Timer</b-button>
+        </b-col>
+      </b-row>
+    </b-modal>
 </div>
 </template>
 <script>
-import {BRow,BCol} from 'bootstrap-vue'
+import {BRow,BCol,BModal} from 'bootstrap-vue'
 const electron = window.require('electron')
 const {desktopCapturer} = electron
+import {powerMonitor} from '@electron/remote'
   
-
-
 export default{
     components:{
         BRow,
-        BCol
+        BCol,
+        BModal
     },
     data(){
         return{
            timeInterval:null,
            memo:'',
+           isWorking:true,
         }
     },
     mounted(){
         window.addEventListener('online', this.updateOnlineStatus)
         window.addEventListener('offline', this.updateOnlineStatus)
         this.updateOnlineStatus()
-    //    electron.ipcRenderer.on('computer-suspend', () => {
-    //      console.log("logging in");
-    //  })
+        powerMonitor.on('suspend',()=>{
+            this.updateTime()
+            })
+        this.getIdleTime()
     },  
     computed:{
         hours:{
@@ -101,9 +116,45 @@ export default{
             set(value){
                 return this.$store.commit("timer/SET_TRACKING_ON",value)
             }
+        },
+        userIsIdle:{
+            get(){
+                return this.$store.state.timer.userIsIdle
+            },
+            set(value){
+                return this.$store.commit("timer/SET_USER_IS_IDLE",value)
+            }
+        },
+        idleTime:{
+            get(){
+                return this.$store.state.timer.idleTime
+            },
+            set(value){
+                 this.$store.commit("timer/SET_IDLE_TIME",value)
+            }
+        }
+    },
+    watch:{
+        trackingOn(value){
+            if(value===true){
+                this.isWorking = true
+            }
+             this.timer()
+        },
+        idleTime(value){
+            if(value > 10 && this.trackingOn){
+                this.isWorking = false
+                this.showModal()
+                setTimeout(this.idle,10000)
+            }
         }
     },
     methods:{
+        getIdleTime(){
+            setInterval(()=>{
+                this.idleTime = powerMonitor.getSystemIdleTime()
+            },1000)
+        },
         startTimer(){
         if(!this.trackingOn) {
             this.timeInterval = setInterval(this.timer, 1000)
@@ -113,15 +164,16 @@ export default{
         clearInterval(this.timeInterval)
         this.trackingOn = false
         },
-        checkTime(i){
+        
+        showTime(i){
             if(i<10){
                 return '0'+ i
             }
             return i
         },
+    
         timer(){
             this.seconds++
-            this.seconds = this.checkTime(this.seconds)
             if(this.seconds==10){
                  this.fullscreenScreenshot(function(base64data){
                         // Draw image in the img tag
@@ -132,13 +184,11 @@ export default{
                 if (this.seconds == 60) {
                     this.minutes = ++this.minutes;
                     this.seconds = 0;
-                    this.minutes = this.checkTime(this.minutes)
                 }
 
                 if (this.minutes == 60) {
                     this.minutes = 0;
                     this.hours = ++this.hours;
-                    this.hours = this.checkTime(this.hours)
                 }
 
         },
@@ -234,7 +284,30 @@ export default{
             if(this.trackingOn){
                 this.startTimer()
             }
+        },
+
+        showModal(){
+            this.$refs['workingModal'].show()
+        },
+        hideModal(){
+            this.$refs['workingModal'].hide()
+        },
+        notWorking(){
+            this.startTimer()
+            this.hideModal()
+        },
+        stillWorking(){
+            this.isWorking = true
+            this.hideModal()
+        },
+        idle(){
+            console.log('it called me')
+            if(!this.isWorking && this.trackingOn){
+                this.hideModal()
+                this.startTimer()
+            }
         }
+
 
     }
 }
@@ -253,5 +326,8 @@ export default{
 .timer-text {
   font-size: 1.5rem;
   font-weight: 700;
+}
+.ml-1{
+    margin-left:10px;
 }
 </style>
