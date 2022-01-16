@@ -45,7 +45,9 @@ import {BRow,BCol,BModal} from 'bootstrap-vue'
 const electron = window.require('electron')
 const {desktopCapturer} = electron
 import {powerMonitor} from '@electron/remote'
-  
+const notifier  = require('node-notifier')
+
+
 export default{
     components:{
         BRow,
@@ -67,6 +69,8 @@ export default{
             this.updateTime()
             })
         this.getIdleTime()
+       console.log(notifier)
+
     },  
     computed:{
         hours:{
@@ -179,6 +183,7 @@ export default{
                         // Draw image in the img tag
                        this.image = base64data
                        this.$store.dispatch("timer/saveScreenshot",this.image)
+                       this.notifyScreenCapture()
                     },'image/png');
             }
                 if (this.seconds == 60) {
@@ -193,9 +198,6 @@ export default{
 
         },
         updateOnlineStatus(){
-            if(this.online && !navigator.onLine){
-                console.log('Connection Lost !!!!')
-            }
             this.online = navigator.onLine
         },
     fullscreenScreenshot(callback, imageFormat) {
@@ -271,7 +273,6 @@ export default{
                                     }
                                 }
                             });
-                            console.log(stream)
                             _this.handleStream(stream);
                         } catch (e) {
                             _this.handleError(e);
@@ -301,11 +302,18 @@ export default{
             this.hideModal()
         },
         idle(){
-            console.log('it called me')
             if(!this.isWorking && this.trackingOn){
                 this.hideModal()
                 this.startTimer()
             }
+        },
+        notifyScreenCapture(){
+        console.log('herer')
+        notifier.notify({
+            title: 'My notification',
+            message: 'Hello, there!',
+            appId:"tracking-app"
+            });
         }
 
 
