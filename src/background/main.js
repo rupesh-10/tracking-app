@@ -1,11 +1,12 @@
 'use strict'
 
-import { app, protocol, BrowserWindow,ipcMain } from 'electron'
+import { app, protocol, BrowserWindow,ipcMain,screen } from 'electron'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 const isDevelopment = process.env.NODE_ENV !== 'production'
 let win;
 let screenCaptureWindow;
+let image;
 
 require('@electron/remote/main').initialize()
 
@@ -19,6 +20,8 @@ async function createWindow() {
    win = new BrowserWindow({
     width: 400,
     height: 700,
+    maximizable:false,
+    resizable:false,
     webPreferences: {
       
       // Use pluginOptions.nodeIntegration, leave this alone
@@ -43,11 +46,30 @@ async function createWindow() {
 }
 
 async function createScreenCaptureWindow(){
+  const {width,height} = screen.getPrimaryDisplay().workAreaSize;
   screenCaptureWindow = new BrowserWindow({
-    width: 400,
-    height: 250,
+    width: 350,
+    height: 280,
+    resizable:false,
+    x: width - 380,
+    y: height - 260,
+    movable:false,
+    minimizable:false,
+    maximizable:false,
+    skipTaskbar:true,
+    webPreferences:{
+      enableRemoteModule:true
+    }
   })
-  await screenCaptureWindow.loadURL('google.com')
+  screen.on('display-metrics-changed', (event, display) =>
+  {
+    // console.log(display, changedMetrics);
+    // console.log(x, y, width, height);
+    const {x, y, width, height} = display.workArea;
+    console.log(x,y)
+    screenCaptureWindow.setBounds({x: width - 500, y: height - 450, width: 500, height: 500})
+  });
+  await screenCaptureWindow.loadURL("data:text/html,<img src="+ image +" width='100%' height='100%'>")
 }
 
 
@@ -86,9 +108,10 @@ app.on('ready', async () => {
 
 // Notification
 
-ipcMain.on('notify-screencaptured', () => {
-  console.log('here called')
+ipcMain.on('notify-screencaptured', (event,img) => {
+  image = img
   screenCaptureWindow  = createScreenCaptureWindow()
+  // setTimeout(()=>{ screenCaptureWindow.close() },6000)
 });
 
 

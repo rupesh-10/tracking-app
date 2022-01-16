@@ -44,7 +44,7 @@
 import {BRow,BCol,BModal} from 'bootstrap-vue'
 const electron = window.require('electron')
 const {desktopCapturer,ipcRenderer} = electron
-import {powerMonitor} from '@electron/remote'
+import {powerMonitor,Notification} from '@electron/remote'
 
 export default{
     components:{
@@ -67,7 +67,6 @@ export default{
             this.updateTime()
             })
         this.getIdleTime()
-   
 
     },  
     computed:{
@@ -181,7 +180,7 @@ export default{
                         // Draw image in the img tag
                        this.image = base64data
                        this.$store.dispatch("timer/saveScreenshot",this.image)
-                       this.notifyScreenCapture()
+                       this.notifyScreenCapture(this.image)
                     },'image/png');
             }
                 if (this.seconds == 60) {
@@ -197,6 +196,9 @@ export default{
         },
         updateOnlineStatus(){
             this.online = navigator.onLine
+            if(!this.online){
+                this.sendNotification({title:'Connection Lost',body:"We couldn't find network, Please check your internet connection"})
+            }
         },
     fullscreenScreenshot(callback, imageFormat) {
             var _this = this;
@@ -305,9 +307,27 @@ export default{
                 this.startTimer()
             }
         },
-     notifyScreenCapture(){
-         ipcRenderer.send('notify-screencaptured')
+        notifyScreenCapture(image){
+         var audio = new Audio(require('../assets/audio/screen.mp3'))
+         audio.play()
+         ipcRenderer.send('notify-screencaptured',image)
+        },
+        sendNotification(notification){
+            const options = {
+                    title: notification.title,
+                    body: notification.body,
+                    silent: false,
+                    // icon: path.join(__dirname, '../assets/image.png'),
+                    hasReply: true,  
+                    timeout:10,
+                    // sound: path.join(__dirname, '../assets/sound.mp3'),
+                    urgency: 'critical' 
+                }
+            const customNotification = new Notification(options);
+            customNotification.show();
         }
+
+        
 
 
     }

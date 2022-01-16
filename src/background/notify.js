@@ -1,18 +1,18 @@
-const notifier = require('node-notifier');
-import { ipcMain, } from 'electron';
+// const notifier = require('node-notifier');
+// import { ipcMain, } from 'electron';
 
 
-ipcMain.on('notify-screencapture', (event, args) => {
-    console.log(event,args)
+// ipcMain.on('notify-screencapture', (event, args) => {
+//     console.log(event,args)
 
-    // now how can I call vuex action from here
-});
+//     // now how can I call vuex action from here
+// });
 
-async function asyncCall() {
-    notifier.notify({
-        message: 'Notrofocation',
-        sound: true, // Only Notification Center or Windows Toasters
+// async function asyncCall() {
+//     notifier.notify({
+//         message: 'Notrofocation',
+//         sound: true, // Only Notification Center or Windows Toasters
         
-    });
-}
-asyncCall();
+//     });
+// }
+// asyncCall();

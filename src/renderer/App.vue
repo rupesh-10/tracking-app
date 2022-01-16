@@ -1,8 +1,10 @@
 <template>
   <div id="app">
    <div>
-    <img alt="Vue logo" src="./assets/logo.png" width="100" height="100">
-    <timer/>
+      <!-- <router-link to="/screencaptured">Latest Image</router-link>
+     <router-view></router-view> -->
+      <img alt="Vue logo" src="./assets/logo.png" width="100" height="100">
+      <timer/>
      <span v-if="!online" style="color:red;">Connection Lost !!!</span>
     </div>
   </div>
@@ -16,6 +18,9 @@ export default {
   components: {
     Timer
   },
+  mounted(){
+    this.$router.replace({name:'screen-captured'})
+  },
   computed:{
      online:{
             get(){
@@ -25,7 +30,7 @@ export default {
                 this.$store.commit("timer/SET_ONLINE",value)
             }
         },
-  }
+  },
 }
 </script>
 
