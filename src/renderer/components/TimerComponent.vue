@@ -43,10 +43,8 @@
 <script>
 import {BRow,BCol,BModal} from 'bootstrap-vue'
 const electron = window.require('electron')
-const {desktopCapturer} = electron
+const {desktopCapturer,ipcRenderer} = electron
 import {powerMonitor} from '@electron/remote'
-const notifier  = require('node-notifier')
-
 
 export default{
     components:{
@@ -69,7 +67,7 @@ export default{
             this.updateTime()
             })
         this.getIdleTime()
-       console.log(notifier)
+   
 
     },  
     computed:{
@@ -307,13 +305,8 @@ export default{
                 this.startTimer()
             }
         },
-        notifyScreenCapture(){
-        console.log('herer')
-        notifier.notify({
-            title: 'My notification',
-            message: 'Hello, there!',
-            appId:"tracking-app"
-            });
+     notifyScreenCapture(){
+         ipcRenderer.send('notify-screencaptured')
         }
 
 

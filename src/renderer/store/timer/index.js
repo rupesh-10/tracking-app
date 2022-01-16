@@ -1,5 +1,6 @@
-// const fs = window.require('fs');
 import axios from 'axios'
+const notifier  = require('node-notifier')
+
 export default{
     namespaced:true,
     state:{
@@ -66,6 +67,13 @@ export default{
             // })
 
           }
-        }
+        },
+        async notifyScreenCapture(){
+            console.log('hawaijahaj')
+            notifier.notify({
+                message: 'Hello, there!',
+                sound:true
+                });
+            }
     }
 }

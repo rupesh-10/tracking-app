@@ -1,9 +1,11 @@
 'use strict'
 
-import { app, protocol, BrowserWindow } from 'electron'
+import { app, protocol, BrowserWindow,ipcMain } from 'electron'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 const isDevelopment = process.env.NODE_ENV !== 'production'
+let win;
+let screenCaptureWindow;
 
 require('@electron/remote/main').initialize()
 
@@ -14,7 +16,7 @@ protocol.registerSchemesAsPrivileged([
 
 async function createWindow() {
   // Create the browser window.
-  const win = new BrowserWindow({
+   win = new BrowserWindow({
     width: 400,
     height: 700,
     webPreferences: {
@@ -39,6 +41,16 @@ async function createWindow() {
   }
 
 }
+
+async function createScreenCaptureWindow(){
+  screenCaptureWindow = new BrowserWindow({
+    width: 400,
+    height: 250,
+  })
+  await screenCaptureWindow.loadURL('google.com')
+}
+
+
 
 
 // Quit when all windows are closed.
@@ -70,6 +82,15 @@ app.on('ready', async () => {
   }
   createWindow()
 })
+
+
+// Notification
+
+ipcMain.on('notify-screencaptured', () => {
+  console.log('here called')
+  screenCaptureWindow  = createScreenCaptureWindow()
+});
+
 
 // Exit cleanly on request from parent process in development mode.
 if (isDevelopment) {

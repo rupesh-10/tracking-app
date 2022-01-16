@@ -21,6 +21,7 @@
     "core-js": "^3.6.5",
     "node-notifier": "^10.0.0",
     "vue": "^2.6.14",
+    "vue-router": "^3.5.3",
     "vuex": "^3.6.2"
   },
   "devDependencies": {
