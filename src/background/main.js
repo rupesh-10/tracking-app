@@ -58,13 +58,13 @@ async function createScreenCaptureWindow(){
     maximizable:false,
     skipTaskbar:true,
     webPreferences:{
-      enableRemoteModule:true
+      nodeIntegration: true,
+      contextIsolation: false,
+      enableRemoteModule: true,
     }
   })
   screen.on('display-metrics-changed', (event, display) =>
   {
-    // console.log(display, changedMetrics);
-    // console.log(x, y, width, height);
     const {x, y, width, height} = display.workArea;
     console.log(x,y)
     screenCaptureWindow.setBounds({x: width - 500, y: height - 450, width: 500, height: 500})
@@ -111,7 +111,7 @@ app.on('ready', async () => {
 ipcMain.on('notify-screencaptured', (event,img) => {
   image = img
   screenCaptureWindow  = createScreenCaptureWindow()
-  // setTimeout(()=>{ screenCaptureWindow.close() },6000)
+  setTimeout(()=>{ BrowserWindow.getAllWindows()[0].close()  },5000)
 });
 
 

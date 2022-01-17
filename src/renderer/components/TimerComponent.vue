@@ -1,5 +1,5 @@
 <template>
-<div>
+<div style="padding:15px;">
 <b-row>
     <h2>GEC Tracker</h2>
     <div class="timer">
@@ -12,11 +12,9 @@
     <!-- <img :src="image"> -->
 </b-row>
 <b-row class="p-2">
-    <b-col md="12">
-    <b-col md="12" class="p-1" style="text-align:left;">
+    <b-col md="12" style="text-align:left;">
     <label>Memo: </label>
-    </b-col>
-    <input class="form-control w-100" placeholder="What are you doing ?">
+    <input class="form-control col-md-12" placeholder="What are you doing ?">
     </b-col>
 </b-row>
 <b-row v-if="image">
@@ -305,6 +303,7 @@ export default{
             if(!this.isWorking && this.trackingOn){
                 this.hideModal()
                 this.startTimer()
+                this.sendNotification({title:"Inactive User!!",body:"We couldn't track your activity so, turned off the timer.",timeoutType:"never"})
             }
         },
         notifyScreenCapture(image){
@@ -319,7 +318,8 @@ export default{
                     silent: false,
                     // icon: path.join(__dirname, '../assets/image.png'),
                     hasReply: true,  
-                    timeout:10,
+                    timoutType:'never',
+                    timeout:notification.timeoutType==='never' ? null : 10,
                     // sound: path.join(__dirname, '../assets/sound.mp3'),
                     urgency: 'critical' 
                 }
