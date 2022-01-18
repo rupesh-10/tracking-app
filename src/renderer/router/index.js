@@ -4,15 +4,15 @@ import VueRouter from 'vue-router'
 Vue.use(VueRouter)
 const routes = [
   {
-    path:'/',
+    path: '/',
     name:'home',
-    component:()=>{import('../App.vue')}
+    component: ()=> import('../components/TimerComponent.vue')
   },
   {
     path: '/screencaptured',
     name:'screen-captured',
-    component: ()=>{import('../components/ScreenCapturedImage.vue')}
-  }
+    component: ()=> import('../components/ScreenCapturedImage.vue')
+  },
 
 ]
 

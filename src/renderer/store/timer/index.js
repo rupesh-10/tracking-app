@@ -12,6 +12,8 @@ export default{
         isNotWorking:true,
         userIsIdle:false,
         idleTime:0,
+        startSession:null,
+        endSession:null, 
     },
     getters:{
 
@@ -43,6 +45,12 @@ export default{
         },
         SET_IDLE_TIME(state,payload){
             state.idleTime = payload
+        },
+        SET_START_SESSION(state,payload){
+            state.startSession = payload
+        },
+        SET_END_SESSION(state,payload){
+            state.endSession = payload
         }
     },
     actions:{

@@ -3,7 +3,7 @@ import App from './App.vue'
 import { BootstrapVue, BootstrapVueIcons } from 'bootstrap-vue'
 import Vuex from 'vuex'
 import store from './store'
-import router from './router/index.js'
+import router from './router'
 
 
 
