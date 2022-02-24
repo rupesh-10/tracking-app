@@ -69,7 +69,7 @@ async function createScreenCaptureWindow(){
     console.log(x,y)
     screenCaptureWindow.setBounds({x: width - 500, y: height - 450, width: 500, height: 500})
   });
-  await screenCaptureWindow.loadURL("data:text/html,<img src="+ image +" width='100%' height='100%'>")
+  await screenCaptureWindow.loadURL("data:text/html,<span>ScreenCaptured: </span> <br> <img src="+ image +" width='100%' height='100%'>")
 }
 
 

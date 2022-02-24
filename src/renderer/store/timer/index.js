@@ -62,7 +62,8 @@ export default{
             }
               const data = new FormData()
               data.append('image',image)
-                if(state.online){
+              
+            if(state.online){
                 axios.post('',data,config).then(res=>{
                     console.log(res)
                 })

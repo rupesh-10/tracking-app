@@ -1,5 +1,22 @@
 <template>
-  <div style="padding: 15px">
+  <div>
+<!-- Header -->
+<b-row>
+  <b-col md="12">
+    <b-card class="pt-2 px-1" no-body no-header>
+      <h5 class="pb-0"><i class="fa fa-chevron-up"></i>Looking For vue developer...</h5>
+      <span>John Doe</span>
+    </b-card>
+  </b-col>
+</b-row>
+<!-- Tracker Section -->
+<b-row class="justify-content-center">
+  <b-col md="10">
+    <b-card no-header>
+      
+    </b-card>
+  </b-col>
+</b-row>
     <b-row>
       <h3>GEC Tracker</h3>
       <b-row>
@@ -375,7 +392,7 @@ export default {
         silent: false,
         icon: require("../assets/logo.png"),
         hasReply: true,
-        timoutType: "never",
+        timeoutType: "never",
         timeout: notification.timeoutType === "never" ? null : 10,
         sound: require("../assets/audio/screen.mp3"),
         urgency: "critical",
