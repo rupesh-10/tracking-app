@@ -1,120 +1,113 @@
 <template>
-  <div>
-<!-- Header -->
-<b-row>
-  <b-col md="12">
-    <b-card class="pt-2 px-1" no-body no-header>
-      <h5 class="pb-0"><i class="fa fa-chevron-up"></i>Looking For vue developer...</h5>
-      <span>John Doe</span>
-    </b-card>
-  </b-col>
-</b-row>
-<!-- Tracker Section -->
-<b-row class="justify-content-center">
-  <b-col md="10">
-    <b-card no-header>
-      <b-row>
-        <b-col md="4">
-          <h4>Current Session</h4>
-          <h4>
-            2hr 2m
-          </h4>
-        </b-col>
-        <b-col md="6">
-          <h4>This Week: </h4> 
-            <h4>
-              0:40hrs
-          </h4>
-        </b-col>
-      </b-row>
-    </b-card>
-  </b-col>
-</b-row>
-    <b-row>
-      <h3>GEC Tracker</h3>
-      <b-row>
-        <b-col cols="6">
-          <div class="timer">
-            <p class="timer-label">Current Session</p>
-            <p class="timer-text">
-              <span class="hours">{{ hours }} hrs </span>
-              <span class="minutes">{{ showTime(minutes) }} m</span>
-              <!-- :<span class="seconds">{{ showTime(seconds) }}</span> -->
-            </p>
-          </div>
-        </b-col>
-        <b-col cols="6">
-          <div class="timer">
-            <p class="timer-label">Today(Monday)</p>
-            <p class="timer-text">
-              <span>00:40 hrs</span>
-            </p>
-          </div>
-        </b-col>
-      </b-row>
-      <b-col class="text-center" md="12">
-        <button
-          :class="`btn w-50 start  ${
-            trackingOn ? 'btn-danger' : 'btn-primary'
-          }`"
-          @click="startTimer"
-        >
-          {{ trackingOn ? "Stop" : "Start" }}
-        </button>
-      </b-col>
-      <!-- <img :src="image"> -->
-    </b-row>
-    <b-row class="p-2">
-      <b-col md="12" style="text-align: left">
-        <label>Memo: </label>
-        <input
-          class="form-control col-md-12"
-          placeholder="What are you doing ?"
-        />
-      </b-col>
-    </b-row>
-    <b-row v-if="image">
-      <b-col md="12" class="text-left pt-2">
-        <h5>Latest Screen Capture:</h5>
-        <img :src="image" height="160" width="100%" />
-      </b-col>
-    </b-row>
-    <b-modal v-if="true" ref="workingModal" hide-header hide-footer>
-      <b-row>
-        <b-col>
-          <h6>Are you still working ? We couldn't track your activity</h6>
-        </b-col>
-      </b-row>
-      <b-row>
-        <b-col style="text-align: right">
-          <b-button variant="primary" @click="stillWorking"
-            >Yes, I'm working</b-button
-          >
-          <b-button variant="danger" class="ml-1" @click="notWorking"
-            >Stop Timer</b-button
-          >
-        </b-col>
-      </b-row>
-    </b-modal>
-  </div>
-</template>
+ <div class="container">
+        <!-- Menu card -->
+        <div class="menu-card">
+
+            <div class="card-report">
+                <img src="../assets/images/avatar.png" alt="image jeremy">
+                <div class="report">
+                    <div class="name">Rupesh Dhakal</div>
+                    <h4>Vue Developer</h4>
+                </div>
+            </div>
+
+            <div class="menu text-white">
+                <h2>Vue Developer For Large Project...</h2>
+                <h5>Jeff Rogers</h5>
+            </div>
+        </div>
+
+        <!-- Regular card -->
+        <div class="regular-card work">
+            <div class="timer-card">
+                <div class="row">
+                    <div class="col-9">
+                         <div class="hours">
+                               <span class="hours">{{ hours }} hrs </span>
+                                 <span class="minutes">{{ showTime(minutes) }} m</span>
+                         </div>
+                     <h4 class="text-white">Current Session</h4>
+                    </div>
+                    <div class="col-3 p-1">
+                        <div class="button-switch">
+                            <input type="checkbox" id="switch-blue" class="switch" :checked ="trackingOn"  @click="startTimer" />
+                            <label for="switch-blue" class="lbl-off">Off</label>
+                            <label for="switch-blue" class="lbl-on">On</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="row ">
+                    <div class="col-6">
+                    <h5 class="title">{{ todaysTime.hours }} hrs {{ showTime(todaysTime.minutes) }} m</h5>
+                     <h4 class="description text-white">Today ({{allDays[todayDate.getDay()]}})</h4>
+                    </div>
+                    <!-- <div>
+                          <b-form-checkbox v-model="checked" name="check-button" switch></b-form-checkbox>
+                    </div> -->
+                    <div class="col-6 week-description">
+                        <h5 class="title text-right">{{showTime(weeksTime.hours)}}:{{showTime(weeksTime.minutes)}} of {{limit}} hrs</h5>
+                        <h4 class="description text-white">This Week (UTC) </h4>
+                    </div>
+                </div>
+
+               
+            </div>
+        </div>
+
+            <!-- ScreenShot -->
+        <div class="regular-card work">
+            <div class="screen-shot-card">
+                <div class="row">
+                    <h2 class="text-white">Latest Screenshot: </h2>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <img :src="image">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <b-modal v-if="true" ref="workingModal" hide-header hide-footer>
+        <b-row>
+            <b-col>
+            <h3>Are you still working ? We couldn't track your activity</h3>
+            </b-col>
+        </b-row>
+        <b-row>
+            <b-col style="text-align: right">
+            <b-button variant="primary" @click="stillWorking"
+                >
+              <h4>  Yes, I'm working </h4>
+                </b-button
+            >
+            <b-button variant="danger" class="ml-1" @click="notWorking"
+                >
+                <h4>Stop Timer</h4>
+                </b-button
+            >
+            </b-col>
+        </b-row>
+        </b-modal>
+    </div>
+ </template>
 <script>
-import { BRow, BCol, BModal } from "bootstrap-vue";
 const electron = window.require("electron");
-const { desktopCapturer, ipcRenderer } = electron;
+const { desktopCapturer } = electron; //ipcRenderer also needed to listen event
 import { powerMonitor, Notification } from "@electron/remote";
 
 export default {
   components: {
-    BRow,
-    BCol,
-    BModal,
+
   },
   data() {
     return {
       timeInterval: null,
       memo: "",
       isWorking: true,
+      limit:40,
+      allDays: ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],
+      todayDate: new Date(),
+      
     };
   },
   mounted() {
@@ -125,6 +118,8 @@ export default {
       this.updateTime();
     });
     this.getIdleTime();
+    this.$store.dispatch('timer/generateRandomScreenshotTime')
+    console.log(this.screenShotTime)
   },
   computed: {
     hours: {
@@ -150,6 +145,22 @@ export default {
       set(value) {
         this.$store.commit("timer/SET_SECONDS", value);
       },
+    },
+    todaysTime:{
+        get(){
+            return this.$store.state.timer.todaysTime
+        },
+        set(value){
+            this.$store.commit("timer/SET_TODAYS_TIME",value)
+        }
+    },
+    weeksTime:{
+        get(){
+            return this.$store.state.timer.weeksTime
+        },
+        set(value){
+            this.$store.commit("timer/SET_WEEKS_TIME",value)
+        }
     },
     online: {
       get() {
@@ -207,6 +218,11 @@ export default {
         this.$store.commit("timer/SET_END_SESSION", value);
       },
     },
+    screenShotTime:{
+        get(){
+            return this.$store.state.timer.screenShotTime
+        }
+    }
   },
   watch: {
     trackingOn(value) {
@@ -216,7 +232,7 @@ export default {
       this.timer();
     },
     idleTime(value) {
-      if (value > 300 && this.trackingOn) {
+      if (value > 30 && this.trackingOn) {
         this.isWorking = false;
         this.showModal();
         setTimeout(this.idle, 10000);
@@ -239,6 +255,7 @@ export default {
       this.endSession = new Date();
       clearInterval(this.timeInterval);
       this.trackingOn = false;
+       this.resetTime()
     },
 
     showTime(i) {
@@ -247,24 +264,37 @@ export default {
       }
       return i;
     },
-
+    resetTime(){
+        this.hours = 0
+        this.minutes = 0
+        this.seconds = 0
+    },
     timer() {
       this.seconds++;
-      if (this.seconds == 10) {
+      if (this.minutes == this.screenShotTime*60) {
         this.fullscreenScreenshot(function (base64data) {
           // Draw image in the img tag
           this.image = base64data;
           this.$store.dispatch("timer/saveScreenshot", this.image);
           this.notifyScreenCapture(this.image);
         }, "image/png");
+     this.$store.dispatch('timer/generateRandomScreenshotTime')
+
       }
+
       if (this.seconds == 60) {
         this.minutes = ++this.minutes;
+        this.weeksTime.minutes = ++this.weeksTime.minutes
+        this.todaysTime.minutes = ++this.todaysTime.minutes
         this.seconds = 0;
       }
 
       if (this.minutes == 60) {
         this.minutes = 0;
+        if(this.weeksTime.minutes >=60)  this.weeksTime.minutes = 0;
+        if(this.todaysTime.minutes >= 60) this.todaysTime.minutes = 0;
+        this.todaysTime.hours = ++this.todaysTime.hours
+        this.weeksTime.hours = ++this.weeksTime.hours
         this.hours = ++this.hours;
       }
     },
@@ -393,10 +423,10 @@ export default {
         });
       }
     },
-    notifyScreenCapture(image) {
+    notifyScreenCapture() {
       var audio = new Audio(require("../assets/audio/screen.mp3"));
       audio.play();
-      ipcRenderer.send("notify-screencaptured", image);
+     // ipcRenderer.send("notify-screencaptured", image);
     },
     sendNotification(notification) {
       const options = {
@@ -416,22 +446,3 @@ export default {
   },
 };
 </script>
-<style scoped lang="css">
-.timer {
-  text-align: center;
-  color: #4a4a4a;
-  margin-bottom: 15px;
-}
-
-.timer-label {
-  margin-bottom: 1px;
-}
-
-.timer-text {
-  font-size: 1.3rem;
-  font-weight: 700;
-}
-.ml-1 {
-  margin-left: 10px;
-}
-</style>

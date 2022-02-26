@@ -8,12 +8,15 @@ export default{
         seconds:0,
         online:navigator.onLine,
         trackingOn:false,
-        image:null,
+        image:require('../../assets/images/no-image.jpg'),
         isNotWorking:true,
         userIsIdle:false,
         idleTime:0,
         startSession:null,
-        endSession:null, 
+        endSession:null,
+        todaysTime:{hours:0,minutes:0},
+        weeksTime:{hours:0, minutes:0},
+        screenShotTime:null,
     },
     getters:{
 
@@ -51,7 +54,16 @@ export default{
         },
         SET_END_SESSION(state,payload){
             state.endSession = payload
-        }
+        },
+        SET_TODAYS_TIME(state,payload){
+            state.todaysTime = payload
+        },
+        SET_WEEKS_TIME(state,payload){
+            state.weeksTime = payload
+        },
+        SET_SCREENSHOT_TIME(state,payload){{
+            state.screenShotTime = payload
+        }}
     },
     actions:{
           saveScreenshot({state},image){
@@ -76,5 +88,15 @@ export default{
 
           }
         },
+        generateRandomScreenshotTime({commit}){
+                const max = 12
+                const min = 4
+                
+                let difference = max - min;
+                let rand = Math.random();
+                rand = Math.floor( rand * difference);
+                rand = rand + min;
+                commit('SET_SCREENSHOT_TIME',rand)
+        }
     }
 }

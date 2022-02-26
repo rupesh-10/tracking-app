@@ -6,7 +6,7 @@ const routes = [
   {
     path: '/',
     name:'home',
-    component: ()=> import('../components/TimerComponent.vue')
+    component: ()=> import('../components/NewTimerComponent.vue')
   },
   {
     path: '/screencaptured',

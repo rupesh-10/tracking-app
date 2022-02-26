@@ -8,7 +8,7 @@
       <span v-if="!online" style="color: red">
         <b-icon icon="exclamation-triangle"> </b-icon>
         Connection Lost !!!
-      </span>
+      </span> 
     </div>
   </div>
 </template>
@@ -35,11 +35,14 @@ export default {
 };
 </script>
 
-<style>
+<style lang="scss">
 #app {
-    font-family: 'Rubik', sans-serif;
+    /* font-family: 'Rubik', sans-serif; */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  width:100% !important;
+  max-width:380px;
+  margin:0 !important;
+  padding: 5px; 
 }
+@import 'assets/scss/style.scss'
 </style>
