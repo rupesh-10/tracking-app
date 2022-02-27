@@ -222,6 +222,14 @@ export default {
         get(){
             return this.$store.state.timer.screenShotTime
         }
+    },
+    latestCaptured:{
+      get(){
+        return this.$store.state.timer.latestCaptured
+      },
+      set(value){
+        this.$store.commit("timer/SET_LATEST_CAPTURED",value)
+      }
     }
   },
   watch: {

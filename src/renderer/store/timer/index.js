@@ -17,6 +17,7 @@ export default{
         todaysTime:{hours:0,minutes:0},
         weeksTime:{hours:0, minutes:0},
         screenShotTime:null,
+        latestCaptured: new Date(),
     },
     getters:{
 
@@ -63,7 +64,10 @@ export default{
         },
         SET_SCREENSHOT_TIME(state,payload){{
             state.screenShotTime = payload
-        }}
+        }},
+        SET_LATEST_CAPTURED(state,payload){
+            state.latestCaptured = payload
+        }
     },
     actions:{
           saveScreenshot({state},image){
