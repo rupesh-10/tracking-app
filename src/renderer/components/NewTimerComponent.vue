@@ -241,7 +241,7 @@ export default {
       this.timer();
     },
     idleTime(value) {
-      if (value > 30 && this.trackingOn) {
+      if (value > 300 && this.trackingOn) {
         this.isWorking = false;
         this.showModal();
         setTimeout(this.idle, 10000);
@@ -294,22 +294,24 @@ export default {
     },
     timer() {
       this.seconds++;
-      if (this.minutes == this.screenShotTime*60) {
+      if (this.seconds == 60) {
+        this.minutes = ++this.minutes;
+        this.latestCaptured = ++this.latestCaptured
+        this.weeksTime.minutes = ++this.weeksTime.minutes
+        this.todaysTime.minutes = ++this.todaysTime.minutes
+         if (this.latestCaptured == this.screenShotTime) {
         this.fullscreenScreenshot(function (base64data) {
           // Draw image in the img tag
           this.image = base64data;
           this.$store.dispatch("timer/saveScreenshot", this.image);
           this.notifyScreenCapture(this.image);
         }, "image/png");
-     this.$store.dispatch('timer/generateRandomScreenshotTime')
+        this.$store.dispatch('timer/generateRandomScreenshotTime')
+        console.log(this.screenShotTime)
+        this.$store.commit('timer/SET_LATEST_CAPTURED',0)
 
-      }
-
-      if (this.seconds == 60) {
-        this.minutes = ++this.minutes;
-        this.weeksTime.minutes = ++this.weeksTime.minutes
-        this.todaysTime.minutes = ++this.todaysTime.minutes
-        this.seconds = 0;
+        }
+          this.seconds = 0;
       }
 
       if (this.minutes == 60) {

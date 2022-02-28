@@ -17,7 +17,7 @@ export default{
         todaysTime:{hours:0,minutes:0},
         weeksTime:{hours:0, minutes:0},
         screenShotTime:null,
-        latestCaptured: new Date(),
+        latestCaptured: 0,
     },
     getters:{
 
@@ -93,8 +93,8 @@ export default{
           }
         },
         generateRandomScreenshotTime({commit}){
-                const max = 12
-                const min = 4
+                const max = 3
+                const min = 1
                 
                 let difference = max - min;
                 let rand = Math.random();
