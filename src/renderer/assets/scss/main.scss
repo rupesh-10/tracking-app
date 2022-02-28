@@ -4,6 +4,9 @@ body {
 .ml-1{
     margin-left:1rem !important;
 }
+.text-right{
+    text-align: right;
+}
 .container {
     //border: 1px solid red; // temporary
     width: 88%;
@@ -149,10 +152,10 @@ body {
             position: relative;
             background-color: $work;
             border-radius: 1.6rem;
-            padding: 1.2rem;
+            padding: 1rem;
 
             img{
-                height: 202px;
+                height: 195px;
                 width:100%;
                 object-fit: 100%;
                 border-radius: 1.5rem;

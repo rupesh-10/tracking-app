@@ -28,12 +28,13 @@
                          </div>
                      <h4 class="text-white">Current Session</h4>
                     </div>
-                    <div class="col-3 p-1">
+                    <div class="col-3 text-right">
                         <div class="button-switch">
                             <input type="checkbox" id="switch-blue" class="switch" :checked ="trackingOn"  @click="startTimer" />
                             <label for="switch-blue" class="lbl-off">Off</label>
                             <label for="switch-blue" class="lbl-on">On</label>
                         </div>
+                        <h3 :class="online ? 'text-success' : 'text-danger'">{{ online ? 'Online' : "Offline"  }}</h3>
                     </div>
                 </div>
                 <div class="row ">
@@ -246,6 +247,20 @@ export default {
         setTimeout(this.idle, 10000);
       }
     },
+    online(oldValue,newValue){
+        if (oldValue && !newValue) {
+        this.sendNotification({
+          title: "Connection Lost",
+          body: "We couldn't find network, Please check your internet connection",
+        });
+      }
+      if(!oldValue && newValue){
+        this.sendNotification({
+          title: "Connection Back",
+          body: "Your Connection Restore!!",
+        });
+      }
+    }
   },
   methods: {
     getIdleTime() {
@@ -308,12 +323,6 @@ export default {
     },
     updateOnlineStatus() {
       this.online = navigator.onLine;
-      if (!this.online) {
-        this.sendNotification({
-          title: "Connection Lost",
-          body: "We couldn't find network, Please check your internet connection",
-        });
-      }
     },
     fullscreenScreenshot(callback, imageFormat) {
       var _this = this;

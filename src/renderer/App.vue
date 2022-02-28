@@ -5,10 +5,6 @@
       <router-link to="/screencaptured">Latest Image</router-link> -->
       <!-- <navbar></navbar> -->
       <router-view></router-view>
-      <span v-if="!online" style="color: red">
-        <b-icon icon="exclamation-triangle"> </b-icon>
-        Connection Lost !!!
-      </span> 
     </div>
   </div>
 </template>
@@ -42,7 +38,7 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   max-width:380px;
   margin:0 !important;
-  padding: 5px; 
+  padding: 3px; 
 }
 @import 'assets/scss/style.scss'
 </style>
