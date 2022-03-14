@@ -84,16 +84,16 @@ export default{
                     console.log(res)
                 })
             }else{
-                var base64Data = image.replace(/^data:image\/png;base64,/, "");
-                localStorage.setItem('screenshots'+Date.now(), base64Data);
+                // var base64Data = image.replace(/^data:image\/png;base64,/, "");
+                // localStorage.setItem('screenshots'+Date.now(), base64Data);
             //     fs.writeFile('screenshots/'+Date.now()+".png", base64Data, 'base64', function(err) {
-            //       console.log(err);
+                  console.log('offline');
             // })
 
           }
         },
         generateRandomScreenshotTime({commit}){
-                const max = 3
+                const max = 4
                 const min = 1
                 
                 let difference = max - min;

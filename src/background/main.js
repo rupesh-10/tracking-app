@@ -22,6 +22,7 @@ async function createWindow() {
     height: 650,
     maximizable:false,
     resizable:false,
+    autoHideMenuBar: true,
     webPreferences: {
       
       // Use pluginOptions.nodeIntegration, leave this alone
@@ -29,6 +30,7 @@ async function createWindow() {
       nodeIntegration: true,
       contextIsolation: false,
       enableRemoteModule: true,
+      // devTools: false
       // contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION,
     }
   })

@@ -1,21 +1,6 @@
 <template>
  <div class="container">
         <!-- Menu card -->
-        <div class="menu-card">
-
-            <div class="card-report">
-                <img src="../assets/images/avatar.png" alt="image jeremy">
-                <div class="report">
-                    <div class="name">Rupesh Dhakal</div>
-                    <h4>Vue Developer</h4>
-                </div>
-            </div>
-
-            <div class="menu text-white">
-                <h2>Vue Developer For Large Project...</h2>
-                <h5>Jeff Rogers</h5>
-            </div>
-        </div>
 
         <!-- Regular card -->
         <div class="regular-card work">
@@ -26,7 +11,7 @@
                                <span class="hours">{{ hours }} hrs </span>
                                  <span class="minutes">{{ showTime(minutes) }} m</span>
                          </div>
-                     <h4 class="text-white">Current Session</h4>
+                     <h4 class="">Current Session</h4>
                     </div>
                     <div class="col-3 text-right">
                         <div class="button-switch">
@@ -39,66 +24,36 @@
                 </div>
                 <div class="row ">
                     <div class="col-6">
-                    <h5 class="title">{{ todaysTime.hours }} hrs {{ showTime(todaysTime.minutes) }} m</h5>
-                     <h4 class="description text-white">Today ({{allDays[todayDate.getDay()]}})</h4>
+                    <h6 class="title">{{ todaysTime.hours }} hrs {{ showTime(todaysTime.minutes) }} m</h6>
+                     <h4 class="description ">Today ({{allDays[todayDate.getDay()]}})</h4>
                     </div>
                     <!-- <div>
                           <b-form-checkbox v-model="checked" name="check-button" switch></b-form-checkbox>
                     </div> -->
                     <div class="col-6 week-description">
-                        <h5 class="title text-right">{{showTime(weeksTime.hours)}}:{{showTime(weeksTime.minutes)}} of {{limit}} hrs</h5>
-                        <h4 class="description text-white">This Week (UTC) </h4>
+                        <h6 class="title text-right">{{showTime(weeksTime.hours)}}:{{showTime(weeksTime.minutes)}} of {{limit}} hrs</h6>
+                        <h4 class="description ">This Week (UTC) </h4>
                     </div>
                 </div>
-
-               
             </div>
         </div>
 
             <!-- ScreenShot -->
-        <div class="regular-card work">
-            <div class="screen-shot-card">
-                <div class="row">
-                    <h2 class="text-white">Latest Screenshot: </h2>
-                </div>
-                <div class="row">
-                    <div class="col-md-12">
-                        <img :src="image">
-                    </div>
-                </div>
-            </div>
-        </div>
-        <b-modal v-if="true" ref="workingModal" hide-header hide-footer>
-        <b-row>
-            <b-col>
-            <h3>Are you still working ? We couldn't track your activity</h3>
-            </b-col>
-        </b-row>
-        <b-row>
-            <b-col style="text-align: right">
-            <b-button variant="primary" @click="stillWorking"
-                >
-              <h4>  Yes, I'm working </h4>
-                </b-button
-            >
-            <b-button variant="danger" class="ml-1" @click="notWorking"
-                >
-                <h4>Stop Timer</h4>
-                </b-button
-            >
-            </b-col>
-        </b-row>
-        </b-modal>
+       <screen-captured-image :image="image"></screen-captured-image>
+       <idle-modal @stillWorking="stillWorking" @notWorking="notWorking" :toggle="toggleWorkingModal"></idle-modal>
     </div>
  </template>
 <script>
 const electron = window.require("electron");
 const { desktopCapturer } = electron; //ipcRenderer also needed to listen event
 import { powerMonitor, Notification } from "@electron/remote";
+import IdleModal from '../common/IdleModal.vue'
+import ScreenCapturedImage from '../common/ScreenCapturedImage.vue'
 
 export default {
   components: {
-
+    IdleModal,
+    ScreenCapturedImage
   },
   data() {
     return {
@@ -108,6 +63,7 @@ export default {
       limit:40,
       allDays: ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],
       todayDate: new Date(),
+      toggleWorkingModal:false,
       
     };
   },
@@ -243,7 +199,7 @@ export default {
     idleTime(value) {
       if (value > 300 && this.trackingOn) {
         this.isWorking = false;
-        this.showModal();
+       this.toggleWorkingModal = true
         setTimeout(this.idle, 10000);
       }
     },
@@ -416,24 +372,19 @@ export default {
         this.startTimer();
       }
     },
-
-    showModal() {
-      this.$refs["workingModal"].show();
-    },
-    hideModal() {
-      this.$refs["workingModal"].hide();
-    },
     notWorking() {
       this.startTimer();
-      this.hideModal();
+      this.toggleWorkingModal = false
     },
+
     stillWorking() {
       this.isWorking = true;
-      this.hideModal();
+     this.toggleWorkingModal = false
     },
+
     idle() {
       if (!this.isWorking && this.trackingOn) {
-        this.hideModal();
+        this.toggleWorkingModal = false
         this.startTimer();
         this.sendNotification({
           title: "Inactive User!!",
@@ -443,7 +394,7 @@ export default {
       }
     },
     notifyScreenCapture() {
-      var audio = new Audio(require("../assets/audio/screen.mp3"));
+      var audio = new Audio(require("../../assets/audio/screen.mp3"));
       audio.play();
      // ipcRenderer.send("notify-screencaptured", image);
     },
@@ -452,11 +403,11 @@ export default {
         title: notification.title,
         body: notification.body,
         silent: false,
-        icon: require("../assets/logo.png"),
+        icon: require("../../assets/logo.png"),
         hasReply: true,
         timeoutType: "never",
         timeout: notification.timeoutType === "never" ? null : 10,
-        sound: require("../assets/audio/screen.mp3"),
+        sound: require("../../assets/audio/screen.mp3"),
         urgency: "critical",
       };
       const customNotification = new Notification(options);
