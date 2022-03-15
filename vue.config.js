@@ -14,20 +14,4 @@ module.exports = {
         }
       }
     },
-    devServer: {
-      disableHostCheck: true,
-      proxy: {
-        '/api': {
-          target: process.env.VUE_APP_GEC_API,
-          pathRewrite: { '^/api': '' },
-          logLevel: 'debug',
-        },
-  
-        '/storage': {
-          target: `${process.env.BASE_URL}/storage`,
-          pathRewrite: { '^/storage': '' },
-          logLevel: 'debug',
-        },
-      },
-    },
   };

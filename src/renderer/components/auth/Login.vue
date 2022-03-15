@@ -8,20 +8,19 @@
                        Please sign-in to your account
                    </p>
                </div>
-        <!-- <validation-observer
+        <!-- <Form
              ref="loginForm"
+             v-slot="errors"
             > -->
                 <b-form
                     class="auth-login-form mt-1"
-                    @submit.prevent="login"
                 >
-                <p class="text-danger" style="font-size:16px;" v-if="wrongCredentials">Wrong Credentials!!!</p>
+                <p class="text-danger" style="font-size:16px;" v-if="formError">{{ errorMessage }}</p>
                     <b-form-group
-                    label="Email"
+                    label="Email *"
                     label-for="login-email"
                     >
-                    <!-- <validation-provider
-                        #default="{ errors }"
+                    <!-- <Field
                         name="Email"
                         vid="email"
                         rules="required|email|max:256"
@@ -35,19 +34,18 @@
                         @keydown.space.prevent
                         />
                         <!-- <small class="text-danger">{{ errors[0] }}</small> -->
-                    <!-- </validation-provider> -->
+                    <!-- </Field> -->
                     </b-form-group>
 
                  <b-form-group
-                    label="Password"
+                    label="Password *"
                     class="pt-4"
                     label-for="login-password"
                     >
-                    <!-- <validation-provider
-                        #default="{ errors }"
-                        name="Email"
-                        vid="email"
-                        rules="required|email|max:256"
+                    <!-- <Field
+                        name="Password"
+                        vid="password"
+                        rules="required|max:256"
                     > -->
                     <b-form-input
                         id="login-password"
@@ -56,39 +54,79 @@
                         @keydown.space.prevent
                         type="password"
                         />
-                        <!-- <small class="text-danger">{{ errors[0] }}</small> -->
-                    <!-- </validation-provider> -->
+                        <!-- <small class="text-danger">{{ errors[0] }}</small>
+                    </Field> -->
                     </b-form-group>
                 </b-form>
 
                 <b-col md="12" class="text-center mt-4 pt-4">
-                    <b-button variant="primary"   type="submit" @click="login">
+                    <b-button variant="primary"   type="submit" @click="login" :disabled="isProcessing">
+                        <b-spinner variant="" v-if="isProcessing">
+
+                        </b-spinner>
                         Sign in
                     </b-button>
                 </b-col>
-            <!-- </validation-observer> -->
+            <!-- </Form> -->
            </div>
         </div> 
 </template>
 <script>
+// import { Field, Form } from 'vee-validate'
+import useApollo from '../../graphql/useApollo'
+import useJwt from '../../auth/jwt/useJwt'
+// import {showSuccessMessage, showErrorMessage} from '../../const/toast'
+
 export default {
+    // components:{
+    //     Field,
+    //     Form
+    // },
     data(){
         return {
             userEmail:'',
             userPassword:'',
-            wrongCredentials:false,
+            formError:false,
+            errorMessage:'',
+            isProcessing:false,
+
         }
     },
   methods:{
       login(){
-          if(this.userEmail==='test' && this.userPassword==='test'){
-            localStorage.setItem('userData', JSON.stringify('testUser'))
-             this.wrongCredentials = false
-            return this.$router.push({ name: "home"})
+          this.formError = false
+          if(this.userEmail=='' || this.userPassword ==''){
+              this.formError = true
+              this.errorMessage = "Please fill all required fields"
+              return 
           }
-          else{
-              this.wrongCredentials = true
-          }
+          this.isProcessing = true;
+          useApollo.auth.login({username:this.userEmail, password:this.userPassword}).then(response=>{
+                console.log(response)
+                 const userData = response.data.login
+                localStorage.setItem('userData', JSON.stringify(userData.user))
+                useJwt.setToken(userData.access_token)
+                setTimeout(() => {
+                    this.$router.replace({ name: 'home' }).then(() => {
+                    this.$toast.success(`Welcome ${userData.user.name}`)
+                    this.$store.commit('auth/SET_LOGGED_IN',true)
+                    
+                })
+                }, 500)
+                }).catch(()=>{
+                   this.$toast.error(`Invalid Credentials`)
+                }
+                ).finally(()=>{
+                    this.isProcessing = false
+                })
+        //   if(this.userEmail==='test' && this.userPassword==='test'){
+        //     localStorage.setItem('userData', JSON.stringify('testUser'))
+        //      this.formError = false
+        //     return this.$router.push({ name: "home"})
+        //   }
+        //   else{
+        //       this.formError = true
+        //   }
       }
   }
 }

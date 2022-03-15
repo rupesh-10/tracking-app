@@ -2,8 +2,7 @@
   <div id="app" class="container">
       <!-- <router-link to="/">TImer</router-link>
       <router-link to="/screencaptured">Latest Image</router-link> -->
-      <navbar></navbar>
-
+      <navbar v-if="loggedIn" :user-data="userData"></navbar>
       <router-view></router-view>
       </div>
 </template>
@@ -21,14 +20,20 @@ export default {
   //   this.$router.push('/')
   // },
   computed: {
-    online: {
-      get() {
-        return this.$store.state.timer.online;
+      online: {
+        get() {
+          return this.$store.state.timer.online;
+        },
+        set(value) {
+          this.$store.commit("timer/SET_ONLINE", value);
+        },
       },
-      set(value) {
-        this.$store.commit("timer/SET_ONLINE", value);
+       userData(){
+        return this.$store.state.auth.userData
       },
-    },
+      loggedIn(){
+        return this.$store.state.auth.loggedIn
+      }
   },
 };
 </script>

@@ -1,7 +1,8 @@
 export default{
     namespaced:true,
     state:{
-       loggedIn:false
+       loggedIn:localStorage.getItem('userData') && JSON.parse(localStorage.getItem('userData')),
+       userData:JSON.parse(localStorage.getItem('userData'))
     },
     getters:{
 
@@ -10,6 +11,9 @@ export default{
         SET_LOGGED_IN(state,payload){
             state.loggedIn = payload
         },
+    },
+
+    actions:{
     }
 
     }
