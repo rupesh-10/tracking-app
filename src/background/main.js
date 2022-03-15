@@ -28,11 +28,11 @@ async function createWindow() {
       
       // Use pluginOptions.nodeIntegration, leave this alone
       // See nklayman.github.io/vue-cli-plugin-electron-builder/guide/security.html#node-integration for more info
-      nodeIntegration: false,
+      nodeIntegration: true,
       contextIsolation: false,
       enableRemoteModule: true,
-      preload: path.join(app.getAppPath(), 'preload.js')
-      // devTools: false
+      // preload: path.join(app.getAppPath(), 'preload.js')
+      devTools: false
       // contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION,
     }
   })
