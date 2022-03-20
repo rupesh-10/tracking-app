@@ -1,4 +1,4 @@
-import axios from 'axios'
+import useApollo from '../../graphql/useApollo'
 
 export default{
     namespaced:true,
@@ -71,18 +71,26 @@ export default{
     },
     actions:{
           saveScreenshot({state},image){
-            const config = {
-                headers: {
-                  'content-type': 'multipart/form-data',
-                }
-            }
-              const data = new FormData()
-              data.append('image',image)
+             
+            //   const data = new FormData()
+            //   data.append('image',image)
               
+            function urltoFile(url, filename, mimeType){
+                return (fetch(url)
+                    .then(function(res){return res.arrayBuffer();})
+                    .then(function(buf){return new File([buf], filename,{type:mimeType});})
+                );
+            }
+            
+
             if(state.online){
-                axios.post('',data,config).then(res=>{
-                    console.log(res)
-                })
+               urltoFile(image,'screenshot.png','image/png').then(file=>{
+                   console.log(file)
+                    useApollo.auth.postScreencastActivity({activityUid:localStorage.getItem('activityUid'),startTime:'2020-03-20 10:45:00',endTime:'2020-03-20 10:45:00',image:file}).then(res=>{
+                     console.log(res)
+                 })
+               })
+            
             }else{
                 // var base64Data = image.replace(/^data:image\/png;base64,/, "");
                 // localStorage.setItem('screenshots'+Date.now(), base64Data);
@@ -93,7 +101,7 @@ export default{
           }
         },
         generateRandomScreenshotTime({commit}){
-                const max = 4
+                const max = 2
                 const min = 1
                 
                 let difference = max - min;
@@ -101,6 +109,21 @@ export default{
                 rand = Math.floor( rand * difference);
                 rand = rand + min;
                 commit('SET_SCREENSHOT_TIME',rand)
+        },
+
+        startActivity(){
+            console.log(useApollo)
+            useApollo.auth.startActivity({projectUid:'2ace18e0-9624-4c00-b9c2-3660f3700a82'}).then(res=>{
+                localStorage.setItem('activityUid',res.data.startActivity.uuid)
+            })
+        },
+        endActivity(){
+            useApollo.auth.endActivity({projectUid:'2ace18e0-9624-4c00-b9c2-3660f3700a82',activityUid:localStorage.getItem('activityUid')}).then(res=>{
+                console.log(res)
+                localStorage.removeItem('activityUid')
+            }).catch(error=>{
+                console.log(error)
+            })
         }
     }
 }

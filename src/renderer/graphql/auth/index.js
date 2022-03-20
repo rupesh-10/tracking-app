@@ -16,4 +16,31 @@ export default {
           mutation: mutation.LOGOUT,
         })
       },
+      startActivity(data){
+        return apolloProvider.mutate({
+          mutation:mutation.startActivity,
+          variables:{
+            ...data,
+          }
+        })
+      },
+      endActivity(data){
+        return apolloProvider.mutate({
+          mutation:mutation.endActivity,
+          variables:{
+            ...data
+          }
+        })
+      },
+      postScreencastActivity(data){
+        return apolloProvider.mutate({
+          mutation:mutation.postScreencastActivity,
+          context: {
+            hasUpload: true // Important!
+          },
+          variables:{
+            ...data
+          }
+        })
+      }
 }    

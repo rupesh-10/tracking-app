@@ -21,7 +21,12 @@ const routes = [
   //   component: ()=> import('../components/common/ScreenCapturedImage.vue'),
   //   beforeEnter:isUserLoggedIn
   // },
-
+  {
+    path:'/projects',
+    name:'projects',
+    component:()=>import('../components/projects/Index.vue'),
+    beforeEnter:isUserLoggedIn
+  }
 ]
 
 const router = new VueRouter({

@@ -10,6 +10,15 @@ export default {
         user {
           id
           name
+          projectRoles{
+            total
+            data{
+              project{
+                uuid
+                name
+              }
+            }
+          }
         }
       }
     }
@@ -22,4 +31,28 @@ export default {
     }
   }
 `,
+
+startActivity: gql `
+mutation startActivity($projectUid:String!) {
+  startActivity(projectUid:$projectUid){
+    uuid
+  }
+}
+`,
+
+endActivity: gql `
+mutation endActivity($projectUid:String!,$activityUid:String!) {
+  endActivity(projectUid:$projectUid,activityUid:$activityUid){
+    uuid
+  }
+}
+`,
+
+postScreencastActivity:gql`
+ mutation postScreencastActivity($activityUid:String!,$startTime:DateTime!,$endTime:DateTime!,$image:Upload!){
+    postScreencastActivity(activityUid:$activityUid,input:{startTime:$startTime,endTime:$endTime,image:$image},meta:{mouseMoves:10,keyClicks:10}){
+      startedAt
+   }
+ }
+`
 }

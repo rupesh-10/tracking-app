@@ -1,10 +1,11 @@
 import Vue from 'vue'
 import VueApollo from 'vue-apollo'
-import { ApolloClient } from 'apollo-boost'
+import { ApolloClient } from 'apollo-client'
 import { setContext } from 'apollo-link-context'
 import jwtDefaultConfig from './auth/jwt/const/jwtDefaultConfig'
-import { createHttpLink } from 'apollo-link-http'
+// import { createHttpLink } from 'apollo-link-http'
 import { InMemoryCache } from 'apollo-cache-inmemory'
+import { createUploadLink } from 'apollo-upload-client'
 
 const graphqlURL = "http://gec-workplace.test/graphql"
 
@@ -14,7 +15,7 @@ const cache = new InMemoryCache()
 Vue.use(VueApollo)
 const AUTH_TOKEN = 'accessToken'
 
-const httpLink = createHttpLink({
+const httpLink = createUploadLink({
   uri: graphqlURL,
 })
 

@@ -30,6 +30,7 @@
                         v-model="userEmail"
                         name="login-email"
                         class="pt-2"
+                        type="email"
                         placeholder="john@example.com"
                         @keydown.space.prevent
                         />
@@ -115,6 +116,8 @@ export default {
                 }, 500)
                 }).catch(()=>{
                    this.$toast.error(`Invalid Credentials`)
+                   this.formError = true
+                   this.errorMessage = "Invalid Credentials"
                 }
                 ).finally(()=>{
                     this.isProcessing = false

@@ -227,12 +227,14 @@ export default {
     startTimer() {
       if (!this.trackingOn) {
         this.startSession = new Date();
+        this.$store.dispatch('timer/startActivity')
         this.timeInterval = setInterval(this.timer, 1000);
         this.trackingOn = true;
         return;
       }
       this.endSession = new Date();
       clearInterval(this.timeInterval);
+      this.$store.dispatch('timer/endActivity')
       this.trackingOn = false;
        this.resetTime()
     },
@@ -336,7 +338,7 @@ export default {
       desktopCapturer
         .getSources({ types: ["window", "screen"] })
         .then(async (sources) => {
-          console.log(sources);
+          //console.log(sources);
 
           for (const source of sources) {
             // Filter: main screen

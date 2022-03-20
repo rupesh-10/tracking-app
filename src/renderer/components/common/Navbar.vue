@@ -15,9 +15,14 @@
         </div>
     </div>
 
-    <div class="menu ">
+    <div class="menu">
+      <!-- <div class="col-md-2">
+        <a  href="#" class="fa-solid fa-chevron-left menu-link" @click="redirectToProject"></a>
+      </div> -->
+      <!-- <div class="col-md-10"> -->
         <h2>Vue Developer For Large Project...</h2>
         <h5>Jeff Rogers</h5>
+      <!-- </div> -->
     </div>
         </div>
 </template>
@@ -43,6 +48,11 @@ export default{
       localStorage.removeItem('userData')
       this.$router.push({ name: 'login' })
     },
+
+    redirectToProject(){
+      alert('hello')
+     this.$router.replace({ name: 'projects' })
+    }
 
   },
 
