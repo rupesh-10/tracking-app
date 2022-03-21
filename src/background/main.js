@@ -17,12 +17,13 @@ protocol.registerSchemesAsPrivileged([
 ])
 
 async function createWindow() {
+  console.log(process.env)
   // Create the browser window.
    win = new BrowserWindow({
     width: 360,
     height: 650,
     maximizable:false,
-    resizable:false,
+    resizable:process.env.VUE_DEV_TOOLS!=null?true:false,
     autoHideMenuBar: true,
     webPreferences: {
       
@@ -32,7 +33,7 @@ async function createWindow() {
       contextIsolation: false,
       enableRemoteModule: true,
       // preload: path.join(app.getAppPath(), 'preload.js')
-      devTools: false
+      devTools: process.env.VUE_DEV_TOOLS
       // contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION,
     }
   })

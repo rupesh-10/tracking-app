@@ -7,7 +7,7 @@ import jwtDefaultConfig from './auth/jwt/const/jwtDefaultConfig'
 import { InMemoryCache } from 'apollo-cache-inmemory'
 import { createUploadLink } from 'apollo-upload-client'
 
-const graphqlURL = "http://gec-workplace.test/graphql"
+const graphqlURL = process.env.VUE_APP_GRAPHQL_HTTP
 
 const cache = new InMemoryCache()
 // const { typeDefs } = require('./server-schema')
