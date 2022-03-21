@@ -1,20 +1,20 @@
 <template>
-     <b-modal ref="workingModal" hide-header hide-footer>
+     <b-modal ref="timerModal" hide-header hide-footer>
         <b-row>
             <b-col>
-            <h3>Are you still working ? We couldn't track your activity</h3>
+            <h3> Tracking in Progress. Would you like to stop time tracker ?</h3>
             </b-col>
         </b-row>
         <b-row>
             <b-col style="text-align: right">
-            <b-button variant="primary" @click="$emit('stillWorking')"
+            <b-button variant="primary" @click="$emit('no')"
                 >
-              <h4>  Yes, I'm working </h4>
+              <h4>  No </h4>
                 </b-button
             >
-            <b-button variant="danger" class="ml-1" @click="$emit('notWorking')"
+            <b-button variant="danger" class="ml-1" @click="$emit('yes')"
                 >
-                <h4>Stop Timer</h4>
+                <h4>Yes</h4>
                 </b-button
             >
             </b-col>
@@ -37,8 +37,8 @@ export default{
     },
     methods:{
     toggleModal() {
-        if(this.toggle)  this.$refs["workingModal"].show();
-        else  this.$refs["workingModal"].hide();
+        if(this.toggle)  this.$refs["timerModal"].show();
+        else  this.$refs["timerModal"].hide();
       
     },
     }

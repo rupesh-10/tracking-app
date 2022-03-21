@@ -20,16 +20,26 @@
         <a  href="#" class="fa-solid fa-chevron-left menu-link" @click="redirectToProject"></a>
       </div> -->
       <!-- <div class="col-md-10"> -->
-        <h2 class="menu-link"  @click="redirectToProject"><i class="fa-solid fa-chevron-left mr-2"></i>{{project ?  project.name : '' }}</h2>
+        <span class="menu-link"  @click="openTimerOffModal"><i class="fa-solid fa-chevron-left mr-2"></i>{{project ?  project.name : '' }}</span>
         <h5>{{ project ? project.company.name : '' }}</h5>
       <!-- </div> -->
     </div>
-        </div>
+    <timer-off-modal :toggle="toggleModal" @yes="redirectToProject" @no="toggleModal=false"></timer-off-modal>
+  </div>
 </template>
 <script>
 import useApollo from '../../graphql/useApollo'
 import useJwt from '../../auth/jwt/useJwt'
+import TimerOffModal from '../common/TimerOffModal.vue'
 export default{
+  data(){
+    return{
+      toggleModal: false
+    }
+  },
+  components:{
+    TimerOffModal
+  },
  props:{
      userData:{
          type:[Array,Object],
@@ -41,7 +51,14 @@ export default{
      }
  },
  computed:{
-  
+     trackingOn: {
+        get() {
+            return this.$store.state.timer.trackingOn;
+        },
+        set(value) {
+            return this.$store.commit("timer/SET_TRACKING_ON", value);
+        },
+      },
  },
  methods: {
     logout() {
@@ -56,8 +73,15 @@ export default{
       this.$router.push({ name: 'login' })
     },
 
+    openTimerOffModal(){
+      if(this.trackingOn) this.toggleModal = true
+      else this.redirectToProject()
+    },
+
     redirectToProject(){
-     this.$router.replace({ name: 'projects' })
+      this.$store.dispatch('timer/endActivity')
+      this.trackingOn = false
+      this.$router.replace({ name: 'projects' })
     }
 
   },

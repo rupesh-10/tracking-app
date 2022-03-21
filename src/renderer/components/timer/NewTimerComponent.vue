@@ -30,7 +30,7 @@
                           <b-form-checkbox v-model="checked" name="check-button" switch></b-form-checkbox>
                     </div> -->
                     <div class="col-6 week-description">
-                        <h6 class="title text-right">{{showTime(weeksTime.hours)}}:{{showTime(weeksTime.minutes)}} of {{limit}} hrs</h6>
+                        <h6 class="title text-right "> <span :class="weeksTime.hours>limit ? 'text-red' : ''"> {{showTime(weeksTime.hours)}}:{{showTime(weeksTime.minutes)}} </span> of {{limit}} hrs</h6>
                         <h4 class="description ">This Week (UTC) </h4>
                     </div>
                 </div>
@@ -75,7 +75,8 @@ export default {
     });
     this.getIdleTime();
     this.$store.dispatch('timer/generateRandomScreenshotTime')
-    console.log(this.screenShotTime)
+    this.$store.dispatch('timer/getTotalTodayTime')
+    this.$store.dispatch('timer/getTotalWeeksTime')
   },
   computed: {
     hours: {
@@ -264,7 +265,7 @@ export default {
           this.notifyScreenCapture(this.image);
         }, "image/png");
         this.$store.dispatch('timer/generateRandomScreenshotTime')
-        console.log(this.screenShotTime)
+
         this.$store.commit('timer/SET_LATEST_CAPTURED',0)
 
         }

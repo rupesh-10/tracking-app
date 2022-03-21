@@ -25,12 +25,23 @@ export default{
     computed:{
         projects(){
             return JSON.parse(localStorage.getItem('userData')).projectRoles.data
-        }
+        },
+        trackingOn: {
+        get() {
+            return this.$store.state.timer.trackingOn;
+        },
+        set(value) {
+            return this.$store.commit("timer/SET_TRACKING_ON", value);
+        },
+        },
     },
     methods:{
         selectProject(project){
             this.$store.commit('auth/SET_PROJECT',project.project)
-            this.$router.replace({name:'home'})
+            this.$router.replace({name:'home'}).then(()=>{
+                this.$store.dispatch('timer/getTotalTodayTime')
+                this.$store.dispatch('timer/getTotalWeeksTime')
+            })
         }
     }
 }

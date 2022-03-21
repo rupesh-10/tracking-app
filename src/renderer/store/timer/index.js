@@ -1,3 +1,4 @@
+import {formatDate,fancyTimeFormat} from '../../const/timer'
 import useApollo from '../../graphql/useApollo'
 
 export default{
@@ -71,24 +72,20 @@ export default{
     },
     actions:{
           saveScreenshot({state},image){
-             
-            //   const data = new FormData()
-            //   data.append('image',image)
-              
             function urltoFile(url, filename, mimeType){
                 return (fetch(url)
                     .then(function(res){return res.arrayBuffer();})
                     .then(function(buf){return new File([buf], filename,{type:mimeType});})
                 );
             }
-            
 
             if(state.online){
                urltoFile(image,'screenshot.png','image/png').then(file=>{
                    console.log(file)
-                    useApollo.auth.postScreencastActivity({activityUid:localStorage.getItem('activityUid'),startTime:'2020-03-20 10:45:00',endTime:'2020-03-20 10:45:00',image:file}).then(res=>{
-                     console.log(res)
-                 })
+                   const currentTime = new Date()
+                    useApollo.auth.postScreencastActivity({activityUid:localStorage.getItem('activityUid'),startTime:formatDate(currentTime),endTime:formatDate(currentTime),image:file}).then(()=>{
+                      
+                    })
                })
             
             }else{
@@ -117,13 +114,46 @@ export default{
                 localStorage.setItem('activityUid',res.data.startActivity.uuid)
             })
         },
-        endActivity(){
+        endActivity({dispatch}){
             const project = JSON.parse(localStorage.getItem('selectedProject'))
             useApollo.auth.endActivity({projectUid:project.uuid,activityUid:localStorage.getItem('activityUid')}).then(res=>{
                 console.log(res)
                 localStorage.removeItem('activityUid')
+                dispatch('getTotalTodayTime')
+                dispatch('getTotalWeeksTime')
             }).catch(error=>{
                 console.log(error)
+            })
+        },
+        getTotalTodayTime({commit}){
+            const project = JSON.parse(localStorage.getItem('selectedProject'))
+            const currentTime = new Date()
+            const todaysTime = new Date().setHours(0,0,0,0)
+              // Todays Total Time
+              useApollo.auth.getTotalTime({keyword:project.uuid,startTime:formatDate(new Date(todaysTime)),endTime:formatDate(currentTime)}).then(res=>{
+                const activities = res.data.me.projects.data[0].activities.data
+                let totalTime = 0
+                activities.forEach(activity=>{
+                    totalTime+=activity.duration
+                })
+                console.log(fancyTimeFormat(totalTime))
+                commit('SET_TODAYS_TIME',fancyTimeFormat(totalTime))
+            })
+
+        },
+        getTotalWeeksTime({commit}){
+            const project = JSON.parse(localStorage.getItem('selectedProject'))
+            const currentTime = new Date()
+            const weekFirstDay = currentTime.getDate() - currentTime.getDay();
+            const weeksTime = new Date(currentTime.setDate(weekFirstDay)).setHours(0,0,0,0)
+            useApollo.auth.getTotalTime({keyword:project.uuid,startTime:formatDate(new Date(weeksTime)),endTime:formatDate(new Date())}).then(res=>{
+                const activities = res.data.me.projects.data[0].activities.data
+                let totalTime = 0
+                activities.forEach(activity=>{
+                    totalTime+=activity.duration
+                })
+                console.log(fancyTimeFormat(totalTime))
+                commit('SET_WEEKS_TIME',fancyTimeFormat(totalTime))
             })
         }
     }

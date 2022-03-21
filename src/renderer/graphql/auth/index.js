@@ -1,5 +1,6 @@
 import apolloProvider from '../../vue-apollo'
 import mutation from './mutations'
+import queries from './queries'
 // import queries from './queries'
 
 export default {
@@ -38,6 +39,14 @@ export default {
           context: {
             hasUpload: true // Important!
           },
+          variables:{
+            ...data
+          }
+        })
+      },
+      getTotalTime(data){
+        return apolloProvider.query({
+          query:queries.TOTAL_TIME_QUERY,
           variables:{
             ...data
           }
