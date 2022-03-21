@@ -21,7 +21,7 @@ async function createWindow() {
   // Create the browser window.
    win = new BrowserWindow({
     width: 360,
-    height: 650,
+    height: 600,
     maximizable:false,
     resizable:process.env.VUE_DEV_TOOLS!=null?true:false,
     autoHideMenuBar: true,
