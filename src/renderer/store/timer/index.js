@@ -112,13 +112,13 @@ export default{
         },
 
         startActivity(){
-            const project = JSON.parse(localStorage.getItem('project'))
+            const project = JSON.parse(localStorage.getItem('selectedProject'))
             useApollo.auth.startActivity({projectUid:project.uuid}).then(res=>{
                 localStorage.setItem('activityUid',res.data.startActivity.uuid)
             })
         },
         endActivity(){
-            const project = JSON.parse(localStorage.getItem('project'))
+            const project = JSON.parse(localStorage.getItem('selectedProject'))
             useApollo.auth.endActivity({projectUid:project.uuid,activityUid:localStorage.getItem('activityUid')}).then(res=>{
                 console.log(res)
                 localStorage.removeItem('activityUid')
