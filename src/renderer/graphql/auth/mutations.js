@@ -16,6 +16,9 @@ export default {
               project{
                 uuid
                 name
+                company{
+                  name
+                }
               }
             }
           }

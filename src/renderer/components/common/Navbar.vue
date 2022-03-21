@@ -20,8 +20,8 @@
         <a  href="#" class="fa-solid fa-chevron-left menu-link" @click="redirectToProject"></a>
       </div> -->
       <!-- <div class="col-md-10"> -->
-        <h2>Vue Developer For Large Project...</h2>
-        <h5>Jeff Rogers</h5>
+        <h2 class="menu-link"  @click="redirectToProject"><i class="fa-solid fa-chevron-left mr-2"></i>{{project ?  project.name : '' }}</h2>
+        <h5>{{ project ? project.company.name : '' }}</h5>
       <!-- </div> -->
     </div>
         </div>
@@ -34,7 +34,14 @@ export default{
      userData:{
          type:[Array,Object],
          default:()=>{}
+     },
+       project:{
+         type:[Array,Object],
+         default:()=>{}
      }
+ },
+ computed:{
+  
  },
  methods: {
     logout() {
@@ -50,7 +57,6 @@ export default{
     },
 
     redirectToProject(){
-      alert('hello')
      this.$router.replace({ name: 'projects' })
     }
 

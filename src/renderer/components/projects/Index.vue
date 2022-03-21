@@ -1,14 +1,37 @@
 <template>
     <div>
-        <div class="row">
-            <div class="col-md-12">
-                <h2>Laravel Developer</h2>
+        <div class="projects w-100">
+            <div class="search-project">
+                <input class="form-control" placeholder="Search Projects">
             </div>
+            <div class="mt-3">
+                <h3 class="text-white">Please Select Project</h3>
+            </div>
+            <div class="project-row project-card mt-3 p-3" v-for="project in projects" :key="project.project.uuid">
+                <div class="col-md-10">
+                <h3 class="project-name" @click="selectProject(project)">{{ project.project.name }}</h3>
+                <h5>{{ project.project.company.name }}</h5>
+                </div>
+                <div class="col-md-2">
+                    0hr 40m of 50hrs
+                </div>
+            </div>
+            <hr>
         </div>
     </div>
 </template>
 <script>
 export default{
-
+    computed:{
+        projects(){
+            return JSON.parse(localStorage.getItem('userData')).projectRoles.data
+        }
+    },
+    methods:{
+        selectProject(project){
+            this.$store.commit('auth/SET_PROJECT',project.project)
+            this.$router.replace({name:'home'})
+        }
+    }
 }
 </script>

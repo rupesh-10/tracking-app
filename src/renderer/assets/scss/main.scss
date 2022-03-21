@@ -14,8 +14,8 @@ body {
 
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
+    // align-items: center;
+    // justify-content: center;
 
     gap: 2.2rem;
 }
@@ -28,7 +28,7 @@ body {
     .card-report {
         background-color: $blue;
         border-radius: 1.6rem;
-        padding: 1rem;
+        padding:0.7rem;
 
         display: flex;
         flex-direction: row;
@@ -64,15 +64,13 @@ body {
 
         .report {
             justify-content: center;
-            gap: 0.1rem;
-
             p {
                 color: $pale-blue;
                 font-size: 1.5rem;
             }
 
             .name {
-                font-size: 2.4rem;
+                font-size: 2rem;
                 font-weight: 600;
             }
         }
@@ -83,7 +81,6 @@ body {
 
         .menu-link {
             color: $desaturated-blue;
-            font-size: 3rem;
             cursor: pointer;
 
             &:hover {
@@ -299,3 +296,23 @@ body {
         }
     }
     }
+
+    .projects{
+        .search-project{
+            input{
+                font-size: 14px;
+            }
+        }
+
+    .project-card{
+        background-color: white;
+        border-radius: 10px;
+        .project-name{
+            cursor: pointer;
+
+            &:hover{
+                color:blue;
+            }
+        }
+    }
+}

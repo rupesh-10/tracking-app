@@ -105,7 +105,8 @@ export default {
           useApollo.auth.login({username:this.userEmail, password:this.userPassword}).then(response=>{
                 console.log(response)
                  const userData = response.data.login
-                localStorage.setItem('userData', JSON.stringify(userData.user))
+                this.$store.commit('auth/SET_USER_DATA',userData.user)
+                
                 useJwt.setToken(userData.access_token)
                 setTimeout(() => {
                     this.$router.replace({ name: 'home' }).then(() => {

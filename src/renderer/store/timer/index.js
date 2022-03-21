@@ -112,13 +112,14 @@ export default{
         },
 
         startActivity(){
-            console.log(useApollo)
-            useApollo.auth.startActivity({projectUid:'2ace18e0-9624-4c00-b9c2-3660f3700a82'}).then(res=>{
+            const project = JSON.parse(localStorage.getItem('project'))
+            useApollo.auth.startActivity({projectUid:project.uuid}).then(res=>{
                 localStorage.setItem('activityUid',res.data.startActivity.uuid)
             })
         },
         endActivity(){
-            useApollo.auth.endActivity({projectUid:'2ace18e0-9624-4c00-b9c2-3660f3700a82',activityUid:localStorage.getItem('activityUid')}).then(res=>{
+            const project = JSON.parse(localStorage.getItem('project'))
+            useApollo.auth.endActivity({projectUid:project.uuid,activityUid:localStorage.getItem('activityUid')}).then(res=>{
                 console.log(res)
                 localStorage.removeItem('activityUid')
             }).catch(error=>{

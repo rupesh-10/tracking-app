@@ -22,7 +22,7 @@ async function createWindow() {
     width: 360,
     height: 650,
     maximizable:false,
-    resizable:false,
+    resizable:true,
     autoHideMenuBar: true,
     webPreferences: {
       
@@ -32,7 +32,7 @@ async function createWindow() {
       contextIsolation: false,
       enableRemoteModule: true,
       // preload: path.join(app.getAppPath(), 'preload.js')
-      devTools: false
+      devTools: true
       // contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION,
     }
   })

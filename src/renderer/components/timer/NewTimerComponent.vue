@@ -1,7 +1,6 @@
 <template>
  <div class="container">
         <!-- Menu card -->
-
         <!-- Regular card -->
         <div class="regular-card work">
             <div class="timer-card">
@@ -23,7 +22,7 @@
                     </div>
                 </div>
                 <div class="row ">
-                    <div class="col-6">
+                    <div class="col-6"> 
                     <h6 class="title">{{ todaysTime.hours }} hrs {{ showTime(todaysTime.minutes) }} m</h6>
                      <h4 class="description ">Today ({{allDays[todayDate.getDay()]}})</h4>
                     </div>
