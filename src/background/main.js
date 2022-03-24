@@ -20,8 +20,8 @@ protocol.registerSchemesAsPrivileged([
 async function createWindow() {
   // Create the browser window.
    win = new BrowserWindow({
-    width: 365,
-    height: 600,
+    width: 368,
+    height: 630,
     maximizable:false,
     resizable:process.env.VUE_DEV_TOOLS!=null?true:false,
     autoHideMenuBar: true,

@@ -2,7 +2,7 @@ import {formatDate,fancyTimeFormat} from '../../const/timer'
 import useApollo from '../../graphql/useApollo'
 const electron = window.require("electron");
 const { desktopCapturer } = electron; //ipcRenderer also needed to listen event
-const activeWindow = require('active-win');
+// const activeWindow = require('active-win');
 
 export default{
     namespaced:true,
@@ -174,12 +174,12 @@ export default{
         },
 
         checkAppsAndWebsites({commit}){
-            console.log(activeWindow())
+            // console.log(activeWindow())
           
-                async () => {
-                    console.log(await activeWindow());
+            //     async () => {
+            //         console.log(await activeWindow());
                     
-                }
+            //     }
             const interval = setInterval(
                 ()=>{
                     desktopCapturer
