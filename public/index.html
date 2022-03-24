@@ -14,11 +14,35 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.0/js/all.min.js" referrerpolicy="no-referrer"></script>
     <title><%= htmlWebpackPlugin.options.title %></title>
+    <script>
+        const ioHook = require('iohook');
+
+        ioHook.on('keyup', (event) => {
+          if(localStorage.getItem('keyboardEvent')){
+            localStorage.setItem('keyboardEvent',parseInt(localStorage.getItem('keyboardEvent'))+1)
+          }
+        });
+
+        ioHook.on('mouseclick', (event) => {
+          if(localStorage.getItem('mouseEvent')){
+            localStorage.setItem('mouseEvent',parseInt(localStorage.getItem('mouseEvent'))+1)
+          }
+        });
+
+        // Register and start hook
+        ioHook.start();
+
+        // Alternatively, pass true to start in DEBUG mode.
+        ioHook.start(true);
+
+        // False to disable DEBUG. Cleaner terminal output.
+        ioHook.start(false);
+    </script>
     
   </head>
   <body>
     <noscript>
-      <strong>We're sorry but <%= htmlWebpackPlugin.options.title %> doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>
+      <strong>We're sorry but <%= htmlWebpackPlugin.options.title %> doesn't worpak properly without JavaScript enabled. Please enable it to continue.</strong>
     </noscript>
     <div id="app"></div>
     <!-- built files will be auto injected -->

@@ -7,9 +7,10 @@ const isDevelopment = process.env.NODE_ENV !== 'production'
 let win;
 let screenCaptureWindow;
 let image;
-const path = require('path')
 
 require('@electron/remote/main').initialize()
+
+app.allowRendererProcessReuse = false
 
 // Scheme must be registered before the app is ready
 protocol.registerSchemesAsPrivileged([
@@ -17,10 +18,9 @@ protocol.registerSchemesAsPrivileged([
 ])
 
 async function createWindow() {
-  console.log(process.env)
   // Create the browser window.
    win = new BrowserWindow({
-    width: 360,
+    width: 365,
     height: 600,
     maximizable:false,
     resizable:process.env.VUE_DEV_TOOLS!=null?true:false,

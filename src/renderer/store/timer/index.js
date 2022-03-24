@@ -1,5 +1,8 @@
 import {formatDate,fancyTimeFormat} from '../../const/timer'
 import useApollo from '../../graphql/useApollo'
+const electron = window.require("electron");
+const { desktopCapturer } = electron; //ipcRenderer also needed to listen event
+const activeWindow = require('active-win');
 
 export default{
     namespaced:true,
@@ -19,6 +22,7 @@ export default{
         weeksTime:{hours:0, minutes:0},
         screenShotTime:null,
         latestCaptured: 0,
+        checkAppsAndWebsitesInterval:null,
     },
     getters:{
 
@@ -68,6 +72,9 @@ export default{
         }},
         SET_LATEST_CAPTURED(state,payload){
             state.latestCaptured = payload
+        },
+        UPDATE_CHECK_APPS_AND_WEBSITES_INTERVAL(state,payload){
+            state.checkAppsAndWebsitesInterval = payload
         }
     },
     actions:{
@@ -81,10 +88,14 @@ export default{
 
             if(state.online){
                urltoFile(image,'screenshot.png','image/png').then(file=>{
-                   console.log(file)
                    const currentTime = new Date()
-                    useApollo.auth.postScreencastActivity({activityUid:localStorage.getItem('activityUid'),startTime:formatDate(currentTime),endTime:formatDate(currentTime),image:file}).then(()=>{
-                      
+                    useApollo.auth.postScreencastActivity({activityUid:localStorage.getItem('activityUid'),startTime:formatDate(currentTime),endTime:formatDate(currentTime),image:file,keyClicks:parseInt(localStorage.getItem('keyboardEvent')),mouseMoves:parseInt(localStorage.getItem('mouseEvent'))}).then(()=>{
+                        localStorage.removeItem('keyboardEvent')
+                        localStorage.removeItem('mouseEvent')
+                        if(state.trackingOn){
+                        localStorage.setItem('keyboardEvent',1)
+                        localStorage.setItem('mouseEvent',1)
+                        }
                     })
                })
             
@@ -108,19 +119,25 @@ export default{
                 commit('SET_SCREENSHOT_TIME',rand)
         },
 
-        startActivity(){
+        startActivity({dispatch}){
             const project = JSON.parse(localStorage.getItem('selectedProject'))
+            dispatch('checkAppsAndWebsites')
             useApollo.auth.startActivity({projectUid:project.uuid}).then(res=>{
                 localStorage.setItem('activityUid',res.data.startActivity.uuid)
+                localStorage.setItem('keyboardEvent',1)
+                localStorage.setItem('mouseEvent',1)
             })
         },
-        endActivity({dispatch}){
+        endActivity({dispatch,state}){
             const project = JSON.parse(localStorage.getItem('selectedProject'))
-            useApollo.auth.endActivity({projectUid:project.uuid,activityUid:localStorage.getItem('activityUid')}).then(res=>{
-                console.log(res)
+            useApollo.auth.endActivity({projectUid:project.uuid,activityUid:localStorage.getItem('activityUid')}).then(()=>{
                 localStorage.removeItem('activityUid')
+                localStorage.removeItem('keyboardEvent')
+                localStorage.removeItem('mouseEvent')
+                localStorage.removeItem('appAndWebsiteUsed')
                 dispatch('getTotalTodayTime')
                 dispatch('getTotalWeeksTime')
+                if(state.checkAppsAndWebsitesInterval) clearInterval(state.checkAppsAndWebsitesInterval)
             }).catch(error=>{
                 console.log(error)
             })
@@ -136,7 +153,6 @@ export default{
                 activities.forEach(activity=>{
                     totalTime+=activity.duration
                 })
-                console.log(fancyTimeFormat(totalTime))
                 commit('SET_TODAYS_TIME',fancyTimeFormat(totalTime))
             })
 
@@ -155,6 +171,52 @@ export default{
                 console.log(fancyTimeFormat(totalTime))
                 commit('SET_WEEKS_TIME',fancyTimeFormat(totalTime))
             })
+        },
+
+        checkAppsAndWebsites({commit}){
+            console.log(activeWindow())
+          
+                async () => {
+                    console.log(await activeWindow());
+                    
+                }
+            const interval = setInterval(
+                ()=>{
+                    desktopCapturer
+                    .getSources({ types: ["window", "screen"] })
+                    .then(async (sources) => {
+                        console.log(sources)
+                        if(sources[1]){
+                            if(localStorage.getItem('appAndWebsiteUsed')){
+                                const appAndWebsiteUsed = JSON.parse(localStorage.getItem('appAndWebsiteUsed'))
+                                let foundIndex = null
+                                  appAndWebsiteUsed.forEach((app,index)=>{
+                                 if(app.name == sources[1].name){
+                                     foundIndex = index
+                                 }
+                               })
+                               if(foundIndex) appAndWebsiteUsed[foundIndex].time +=5
+                               else appAndWebsiteUsed.push({
+                                name:sources[1].name,
+                                time:5
+                               })
+                               localStorage.setItem('appAndWebsiteUsed',JSON.stringify(appAndWebsiteUsed))
+                            }
+                            else{
+                                const appAndWebsiteUsed = [
+                                    {
+                                    name:sources[1].name,
+                                    time:5
+                                    }
+                                ]
+                                localStorage.setItem('appAndWebsiteUsed',JSON.stringify(appAndWebsiteUsed))
+                            }
+                        }
+                })
+            },
+                5000
+            )
+            commit('UPDATE_CHECK_APPS_AND_WEBSITES_INTERVAL',interval) 
         }
     }
 }

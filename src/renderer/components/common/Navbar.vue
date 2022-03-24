@@ -75,7 +75,7 @@ export default{
 
     openTimerOffModal(){
       if(this.trackingOn) this.toggleModal = true
-      else this.redirectToProject()
+      else this.$router.replace({ name: 'projects' })
     },
 
     redirectToProject(){

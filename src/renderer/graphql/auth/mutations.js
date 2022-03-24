@@ -52,8 +52,8 @@ mutation endActivity($projectUid:String!,$activityUid:String!) {
 `,
 
 postScreencastActivity:gql`
- mutation postScreencastActivity($activityUid:String!,$startTime:DateTime!,$endTime:DateTime!,$image:Upload!){
-    postScreencastActivity(activityUid:$activityUid,input:{startTime:$startTime,endTime:$endTime,image:$image},meta:{mouseMoves:10,keyClicks:10}){
+ mutation postScreencastActivity($activityUid:String!,$startTime:DateTime!,$endTime:DateTime!,$image:Upload!,$mouseMoves:Int!,$keyClicks:Int!){
+    postScreencastActivity(activityUid:$activityUid,input:{startTime:$startTime,endTime:$endTime,image:$image},meta:{mouseMoves:$mouseMoves,keyClicks:$keyClicks}){
       startedAt
    }
  }
