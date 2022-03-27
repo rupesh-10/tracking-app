@@ -60,8 +60,8 @@ postScreencastActivity:gql`
 `,
 
 postAppActivity:gql`
-  mutation postApplicationActivity($activityUid:String!){
-    postApplicationActivity(activityUid:$activityUid){
+  mutation postApplicationActivity($activityUid:String!,$appName:String!,$startTime:DateTime!,$endTime:DateTime!,$keyClicks:Int!,$mouseMoves:Int!){
+    postApplicationActivity(activityUid:$activityUid,input:{name:$appName,startTime:$startTime,endTime:$endTime},meta:{keyClicks:$keyClicks,mouseMoves:$mouseMoves}){
       startedAt
     }
   }

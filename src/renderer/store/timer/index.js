@@ -165,40 +165,50 @@ export default{
             })
         },
 
-        checkAppsAndWebsites({commit}){
-            const interval = setInterval(
-                    async () =>{
-                        const source = await activeWindow()
-                        console.log(source)
-                        if(localStorage.getItem('appAndWebsiteUsed')){
-                            const appAndWebsiteUsed = JSON.parse(localStorage.getItem('appAndWebsiteUsed'))
-                            let foundIndex = null
-                              appAndWebsiteUsed.forEach((app,index)=>{
-                                if(app.name == source.owner.name){
-                                    foundIndex = index
-                                }
-                           })
-                           if(foundIndex) appAndWebsiteUsed[foundIndex].time +=5
-                           else appAndWebsiteUsed.push({
-                            name:source.owner.name,
-                            time:5,
-                           })
-                           localStorage.setItem('appAndWebsiteUsed',JSON.stringify(appAndWebsiteUsed))
+        checkAppsAndWebsites({commit,dispatch}){
+            const interval = setInterval(()=>{
+                const source = activeWindow.sync()
+                if(localStorage.getItem('appAndWebsiteUsed')){
+                const appAndWebsiteUsed = JSON.parse(localStorage.getItem('appAndWebsiteUsed'))                                
+                    if(appAndWebsiteUsed.id !== source.id){
+                    const currentTime = new Date().getTime()
+                    const durationOfApp = (currentTime - appAndWebsiteUsed.start_time)/1000
+                    if(durationOfApp >= 15){
+                        dispatch('setAppWebsiteTime')
+                    }
+                    else{
+                        localStorage.removeItem('appAndWebsiteUsed')
+                        const appAndWebsiteUsed = 
+                        {
+                        id:source.id,
+                        name:source.owner.name,
+                        start_time:new Date().getTime(),
                         }
-                        else{
-                            const appAndWebsiteUsed = [
-                                {
-                                name:source.owner.name,
-                                time:5,
-                                }
-                            ]
-                            localStorage.setItem('appAndWebsiteUsed',JSON.stringify(appAndWebsiteUsed))
+                        localStorage.setItem('appAndWebsiteUsed',JSON.stringify(appAndWebsiteUsed))
                         }
 
-                    },
-                        5000
-                    )
-            commit('UPDATE_CHECK_APPS_AND_WEBSITES_INTERVAL',interval) 
+                        }
+                        else{
+                            const currentTime = new Date().getTime()
+                            const durationOfApp = (currentTime - appAndWebsiteUsed.start_time)/1000
+                            if(durationOfApp >= 15){
+                               dispatch('setAppWebsiteTime')
+                            }
+                        }
+                    }
+
+                     else{
+                            const appAndWebsiteUsed = 
+                            {
+                                id:source.id,
+                                name:source.owner.name,
+                                start_time:new Date().getTime(),
+                            }
+                            localStorage.setItem('appAndWebsiteUsed',JSON.stringify(appAndWebsiteUsed))
+                        }
+                    }
+                ,1000)
+                commit('UPDATE_CHECK_APPS_AND_WEBSITES_INTERVAL',interval) 
         },
         setAppWebsiteTime(){
             // const appAndWebsiteUsed = localStorage.getItem('appAndWebsiteUsed')
