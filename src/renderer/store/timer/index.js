@@ -1,6 +1,7 @@
 import {formatDate,fancyTimeFormat} from '../../const/timer'
 import useApollo from '../../graphql/useApollo'
 const activeWindow = require('active-win');
+import url from 'url';
 
 export default{
     namespaced:true,
@@ -21,6 +22,9 @@ export default{
         screenShotTime:null,
         latestCaptured: 0,
         checkAppsAndWebsitesInterval:null,
+        website:null,
+        application:null,
+        app_website:null,
     },
     getters:{
 
@@ -73,7 +77,17 @@ export default{
         },
         UPDATE_CHECK_APPS_AND_WEBSITES_INTERVAL(state,payload){
             state.checkAppsAndWebsitesInterval = payload
-        }
+        },
+        SET_WEBSITE(state,payload){
+            state.website = payload
+        },
+        SET_APPLICATION(state,payload){
+            state.application = payload
+        },
+        SET_APP_WEBSITE(state,payload){
+            state.app_website = payload
+        },
+
     },
     actions:{
           saveScreenshot({state,dispatch},image){
@@ -88,11 +102,11 @@ export default{
                urltoFile(image,'screenshot.png','image/png').then(file=>{
                    const currentTime = new Date()
                     useApollo.auth.postScreencastActivity({activityUid:localStorage.getItem('activityUid'),startTime:formatDate(currentTime),endTime:formatDate(currentTime),image:file,keyClicks:parseInt(localStorage.getItem('keyboardEvent')),mouseMoves:parseInt(localStorage.getItem('mouseEvent'))}).then(()=>{
-                        localStorage.removeItem('keyboardEvent')
-                        localStorage.removeItem('mouseEvent')
+                        localStorage.setItem('keyboardEvent',1)
+                        localStorage.setItem('mouseEvent',1)
                         if(state.trackingOn){
-                        localStorage.setItem('screenKeyboardEvent',1)
-                        localStorage.setItem('screenMouseEvent',1)
+                            localStorage.setItem('screenKeyboardEvent',1)
+                            localStorage.setItem('screenMouseEvent',1)
                         }
                     })
                })
@@ -207,36 +221,42 @@ export default{
                     )
             commit('UPDATE_CHECK_APPS_AND_WEBSITES_INTERVAL',interval) 
         },
-        setAppAndWebsiteUsed({state},source){
-            console.log(state)
+        setAppAndWebsiteUsed({commit},source){
+            var sourceUrl=source.url
+            if(sourceUrl!=null){
+                const urlObject =url.parse(sourceUrl);
+                sourceUrl=urlObject.host
+
+            }
             const appAndWebsiteUsed = 
             {
                 id: source.id,
                 name:source.owner.name,
                 start_time:new Date().getTime(),
-                url: source.url
+                url: sourceUrl
             }
-        
+            console.log(appAndWebsiteUsed)
             localStorage.setItem('appAndWebsiteUsed',JSON.stringify(appAndWebsiteUsed))
+            commit('SET_APP_WEBSITE',appAndWebsiteUsed)
         },
-        setAppTime({commit},data){
-            console.log(commit)
+        setAppTime({commit},data){            
             useApollo.auth.setAppActivity(data).then(()=>{
                 localStorage.setItem('keyboardEvent',1)
-                localStorage.getItem('mouseEvent',1)
+                localStorage.setItem('mouseEvent',1)
 
             })
+            commit('SET_APPLICATION',data)
 
         },
         setWebTime({commit},data){
-            console.log(commit)
             useApollo.auth.setWebActivity(data).then(()=>{
                 localStorage.setItem('keyboardEvent',1)
-                localStorage.getItem('mouseEvent',1)
+                localStorage.setItem('mouseEvent',1)
             })
+            commit('SET_WEBSITE',data)
         },
         setLatestCaptured({commit},image){
-            console.log(image)
+            // console.log(image)
             const project = JSON.parse(localStorage.getItem('selectedProject'))
             if(localStorage.getItem('latestCapturedImage')){
                 let latestCaptured = JSON.parse(localStorage.getItem('latestCapturedImage'))
