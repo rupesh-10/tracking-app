@@ -57,5 +57,13 @@ postScreencastActivity:gql`
       startedAt
    }
  }
+`,
+
+postAppActivity:gql`
+  mutation postApplicationActivity($activityUid:String!){
+    postApplicationActivity(activityUid:$activityUid){
+      startedAt
+    }
+  }
 `
 }

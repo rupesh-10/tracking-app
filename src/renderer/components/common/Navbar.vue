@@ -24,7 +24,7 @@
         <h5>{{ project ? project.company.name : '' }}</h5>
       <!-- </div> -->
     </div>
-    <timer-off-modal :toggle="toggleModal" @yes="redirectToProject" @no="toggleModal=false"></timer-off-modal>
+    <timer-off-modal :toggle="toggleModal" @yes="modalAnswerYes" @no="modalAnswerNo"></timer-off-modal>
   </div>
 </template>
 <script>
@@ -34,7 +34,8 @@ import TimerOffModal from '../common/TimerOffModal.vue'
 export default{
   data(){
     return{
-      toggleModal: false
+      toggleModal: false,
+      modalFor:null,
     }
   },
   components:{
@@ -62,6 +63,11 @@ export default{
  },
  methods: {
     logout() {
+      if(this.trackingOn) {
+        this.toggleModal = true
+        this.modalFor = 'logout'
+        return
+      }
       useApollo.auth.logout().finally(() => {
         this.emptyLocalStorageAndRedirectToLogin()
         this.$store.commit('auth/SET_LOGGED_IN',false)
@@ -70,18 +76,29 @@ export default{
     emptyLocalStorageAndRedirectToLogin() {
       localStorage.removeItem(useJwt.jwtConfig.storageTokenKeyName)
       localStorage.removeItem('userData')
+      localStorage.removeItem('selectedProject')
       this.$router.push({ name: 'login' })
     },
 
     openTimerOffModal(){
-      if(this.trackingOn) this.toggleModal = true
+      if(this.trackingOn){
+       this.toggleModal = true
+       this.modalFor = 'project'
+      }
       else this.$router.replace({ name: 'projects' })
     },
 
-    redirectToProject(){
+    modalAnswerNo(){
+      this.toggleModal = false,
+      this.modalFor=null
+    },
+
+    modalAnswerYes(){
       this.$store.dispatch('timer/endActivity')
       this.trackingOn = false
-      this.$router.replace({ name: 'projects' })
+      if(this.modalFor=='project') this.$router.replace({ name: 'projects' })
+      else if(this.modalFor=='logout') this.logout()
+      
     }
 
   },

@@ -1,6 +1,6 @@
 'use strict'
 
-import { app, protocol, BrowserWindow,ipcMain,screen } from 'electron'
+import { app, protocol, BrowserWindow,ipcMain,screen,globalShortcut } from 'electron'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 const isDevelopment = process.env.NODE_ENV !== 'production'
@@ -47,6 +47,21 @@ async function createWindow() {
     // Load the index.html when not in development
     win.loadURL('app://./index.html')
   }
+
+    // Set a variable when the app is quitting.
+    var isAppQuitting = false;
+    console.log(win)
+    app.on('before-quit', function () {
+        isAppQuitting = true;
+    });
+  
+    win.on('close', function (evt) {
+        if (!isAppQuitting) {
+            evt.preventDefault();
+            win.hide();
+        }
+    });
+  
 
 }
 
@@ -135,3 +150,25 @@ if (isDevelopment) {
   }
 }
 
+
+// Prevent Reloading
+if(!isDevelopment){
+app.on('browser-window-focus', function () {
+  globalShortcut.register("CommandOrControl+R", () => {
+      console.log("CommandOrControl+R is pressed: Shortcut Disabled");
+  });
+  globalShortcut.register("CommandOrControl+Shift+R", () => {
+    console.log("CommandOrControl+R is pressed: Shortcut Disabled");
+  });
+  globalShortcut.register("F5", () => {
+      console.log("F5 is pressed: Shortcut Disabled");
+  });
+});
+
+
+app.on('browser-window-blur', function () {
+  globalShortcut.unregister('CommandOrControl+R');
+  globalShortcut.unregister('CommandOrControl+Shift+R');
+  globalShortcut.unregister('F5');
+});
+}

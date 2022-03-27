@@ -1,15 +1,13 @@
 import {formatDate,fancyTimeFormat} from '../../const/timer'
 import useApollo from '../../graphql/useApollo'
-const electron = window.require("electron");
-const { desktopCapturer } = electron; //ipcRenderer also needed to listen event
-// const activeWindow = require('active-win');
+const activeWindow = require('active-win');
 
 export default{
     namespaced:true,
     state:{
         hours:0,
         minutes:0,
-        seconds:0,
+        seconds:0,  
         online:navigator.onLine,
         trackingOn:false,
         image:require('../../assets/images/no-image.jpg'),
@@ -18,8 +16,8 @@ export default{
         idleTime:0,
         startSession:null,
         endSession:null,
-        todaysTime:{hours:0,minutes:0},
-        weeksTime:{hours:0, minutes:0},
+        todaysTime:JSON.parse(localStorage.getItem('todaysTotalTime')),
+        weeksTime:JSON.parse(localStorage.getItem('weeksTotalTime')),
         screenShotTime:null,
         latestCaptured: 0,
         checkAppsAndWebsitesInterval:null,
@@ -78,7 +76,7 @@ export default{
         }
     },
     actions:{
-          saveScreenshot({state},image){
+          saveScreenshot({state,dispatch},image){
             function urltoFile(url, filename, mimeType){
                 return (fetch(url)
                     .then(function(res){return res.arrayBuffer();})
@@ -107,6 +105,8 @@ export default{
             // })
 
           }
+          dispatch('setLatestCaptured',image)
+          
         },
         generateRandomScreenshotTime({commit}){
                 const max = 2
@@ -137,6 +137,7 @@ export default{
                 localStorage.removeItem('appAndWebsiteUsed')
                 dispatch('getTotalTodayTime')
                 dispatch('getTotalWeeksTime')
+                dispatch('setAppWebsiteTime')
                 if(state.checkAppsAndWebsitesInterval) clearInterval(state.checkAppsAndWebsitesInterval)
             }).catch(error=>{
                 console.log(error)
@@ -148,12 +149,8 @@ export default{
             const todaysTime = new Date().setHours(0,0,0,0)
               // Todays Total Time
               useApollo.auth.getTotalTime({keyword:project.uuid,startTime:formatDate(new Date(todaysTime)),endTime:formatDate(currentTime)}).then(res=>{
-                const activities = res.data.me.projects.data[0].activities.data
-                let totalTime = 0
-                activities.forEach(activity=>{
-                    totalTime+=activity.duration
-                })
-                commit('SET_TODAYS_TIME',fancyTimeFormat(totalTime))
+                localStorage.setItem('todaysTotalTime',JSON.stringify(fancyTimeFormat(res.data.me.duration)))
+                commit('SET_TODAYS_TIME',fancyTimeFormat(res.data.me.duration))
             })
 
         },
@@ -163,60 +160,94 @@ export default{
             const weekFirstDay = currentTime.getDate() - currentTime.getDay();
             const weeksTime = new Date(currentTime.setDate(weekFirstDay)).setHours(0,0,0,0)
             useApollo.auth.getTotalTime({keyword:project.uuid,startTime:formatDate(new Date(weeksTime)),endTime:formatDate(new Date())}).then(res=>{
-                const activities = res.data.me.projects.data[0].activities.data
-                let totalTime = 0
-                activities.forEach(activity=>{
-                    totalTime+=activity.duration
-                })
-                console.log(fancyTimeFormat(totalTime))
-                commit('SET_WEEKS_TIME',fancyTimeFormat(totalTime))
+                localStorage.setItem('weeksTotalTime',JSON.stringify(fancyTimeFormat(res.data.me.duration)))
+                commit('SET_WEEKS_TIME',fancyTimeFormat(res.data.me.duration))
             })
         },
 
         checkAppsAndWebsites({commit}){
-            // console.log(activeWindow())
-          
-            //     async () => {
-            //         console.log(await activeWindow());
-                    
-            //     }
             const interval = setInterval(
-                ()=>{
-                    desktopCapturer
-                    .getSources({ types: ["window", "screen"] })
-                    .then(async (sources) => {
-                        console.log(sources)
-                        if(sources[1]){
-                            if(localStorage.getItem('appAndWebsiteUsed')){
-                                const appAndWebsiteUsed = JSON.parse(localStorage.getItem('appAndWebsiteUsed'))
-                                let foundIndex = null
-                                  appAndWebsiteUsed.forEach((app,index)=>{
-                                 if(app.name == sources[1].name){
-                                     foundIndex = index
-                                 }
-                               })
-                               if(foundIndex) appAndWebsiteUsed[foundIndex].time +=5
-                               else appAndWebsiteUsed.push({
-                                name:sources[1].name,
-                                time:5
-                               })
-                               localStorage.setItem('appAndWebsiteUsed',JSON.stringify(appAndWebsiteUsed))
-                            }
-                            else{
-                                const appAndWebsiteUsed = [
-                                    {
-                                    name:sources[1].name,
-                                    time:5
-                                    }
-                                ]
-                                localStorage.setItem('appAndWebsiteUsed',JSON.stringify(appAndWebsiteUsed))
-                            }
+                    async () =>{
+                        const source = await activeWindow()
+                        console.log(source)
+                        if(localStorage.getItem('appAndWebsiteUsed')){
+                            const appAndWebsiteUsed = JSON.parse(localStorage.getItem('appAndWebsiteUsed'))
+                            let foundIndex = null
+                              appAndWebsiteUsed.forEach((app,index)=>{
+                                if(app.name == source.owner.name){
+                                    foundIndex = index
+                                }
+                           })
+                           if(foundIndex) appAndWebsiteUsed[foundIndex].time +=5
+                           else appAndWebsiteUsed.push({
+                            name:source.owner.name,
+                            time:5,
+                           })
+                           localStorage.setItem('appAndWebsiteUsed',JSON.stringify(appAndWebsiteUsed))
                         }
-                })
-            },
-                5000
-            )
+                        else{
+                            const appAndWebsiteUsed = [
+                                {
+                                name:source.owner.name,
+                                time:5,
+                                }
+                            ]
+                            localStorage.setItem('appAndWebsiteUsed',JSON.stringify(appAndWebsiteUsed))
+                        }
+
+                    },
+                        5000
+                    )
             commit('UPDATE_CHECK_APPS_AND_WEBSITES_INTERVAL',interval) 
-        }
+        },
+        setAppWebsiteTime(){
+            // const appAndWebsiteUsed = localStorage.getItem('appAndWebsiteUsed')
+            // const project = localStorage.getItem('selectedProject')
+            // useApollo.setAppWebsiteTime({activityUid:project}).then(res=>{
+            //     console.log(res)
+            // })
+
+        },
+        setLatestCaptured({commit},image){
+            console.log(image)
+            const project = JSON.parse(localStorage.getItem('selectedProject'))
+            if(localStorage.getItem('latestCapturedImage')){
+                let latestCaptured = JSON.parse(localStorage.getItem('latestCapturedImage'))
+                let foundProject = null
+                latestCaptured.forEach((capture,index)=>{
+                    if(capture.project == project.uuid){
+                        foundProject = index
+                    }
+                })
+                if(foundProject) latestCaptured[foundProject].image = image
+                else {
+                     latestCaptured.push({
+                        project:project.uuid,
+                        image:image
+                    })
+                }
+                localStorage.setItem('latestCapturedImage',JSON.stringify(latestCaptured))
+            }
+            else{
+                const latestCaptured = [{
+                    project:project.uuid,
+                    image:image
+                }]
+                localStorage.setItem('latestCapturedImage',JSON.stringify(latestCaptured))
+            }
+            commit('SET_SCREENSHOT',image)
+        },
+        fetchImage({commit}){
+            const selectedProject= JSON.parse(localStorage.getItem('selectedProject'))
+            const latestCapturedImage = JSON.parse(localStorage.getItem('latestCapturedImage'))
+            if(latestCapturedImage){
+              const filteredLatestCapturedImage = latestCapturedImage.find(capture=>capture.project == selectedProject?.uuid )
+              console.log(filteredLatestCapturedImage)
+              if(filteredLatestCapturedImage){
+                commit('SET_SCREENSHOT',filteredLatestCapturedImage.image)
+              }
+              else commit('SET_SCREENSHOT',require('../../assets/images/no-image.jpg')) 
+            }
+        },
     }
 }

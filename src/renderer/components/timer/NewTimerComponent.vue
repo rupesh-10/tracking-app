@@ -75,8 +75,10 @@ export default {
     });
     this.getIdleTime();
     this.$store.dispatch('timer/generateRandomScreenshotTime')
-    this.$store.dispatch('timer/getTotalTodayTime')
-    this.$store.dispatch('timer/getTotalWeeksTime')
+    if(this.online){
+      this.fetchAllTimes()
+    }
+    this.$store.dispatch('timer/fetchImage')
   },
   computed: {
     hours: {
@@ -187,6 +189,11 @@ export default {
       set(value){
         this.$store.commit("timer/SET_LATEST_CAPTURED",value)
       }
+    },
+    selectedProject:{
+      get(){
+        return this.$store.state.auth.project
+      }
     }
   },
   watch: {
@@ -211,6 +218,7 @@ export default {
         });
       }
       if(!oldValue && newValue){
+         this.fetchAllTimes()
         this.sendNotification({
           title: "Connection Back",
           body: "Your Connection Restore!!",
@@ -219,6 +227,10 @@ export default {
     }
   },
   methods: {
+    fetchAllTimes(){
+      this.$store.dispatch('timer/getTotalTodayTime')
+      this.$store.dispatch('timer/getTotalWeeksTime')
+    },
     getIdleTime() {
       setInterval(() => {
         this.idleTime = powerMonitor.getSystemIdleTime();
@@ -260,8 +272,7 @@ export default {
          if (this.latestCaptured == this.screenShotTime) {
         this.fullscreenScreenshot(function (base64data) {
           // Draw image in the img tag
-          this.image = base64data;
-          this.$store.dispatch("timer/saveScreenshot", this.image);
+          this.$store.dispatch("timer/saveScreenshot", base64data);
           this.notifyScreenCapture(this.image);
         }, "image/png");
         this.$store.dispatch('timer/generateRandomScreenshotTime')

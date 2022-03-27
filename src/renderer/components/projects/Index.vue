@@ -33,6 +33,7 @@ export default{
             this.$store.commit('auth/SET_PROJECT',project.project)
              this.$store.dispatch('timer/getTotalTodayTime')
              this.$store.dispatch('timer/getTotalWeeksTime')
+             this.$store.dispatch('timer/fetchImage')
              this.$router.replace({name:'home'})                                                                                                                
         }
     }

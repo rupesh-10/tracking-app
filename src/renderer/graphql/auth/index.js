@@ -51,5 +51,13 @@ export default {
             ...data
           }
         })
+      },
+      setAppActivity(data){
+        return apolloProvider.mutate({
+          mutation:mutation.postAppActivity,
+          variables:{
+            ...data
+          }
+        })
       }
 }    
