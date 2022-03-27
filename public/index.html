@@ -21,11 +21,17 @@
           if(localStorage.getItem('keyboardEvent')){
             localStorage.setItem('keyboardEvent',parseInt(localStorage.getItem('keyboardEvent'))+1)
           }
+          if(localStorage.getItem('screenKeyboardEvent')){
+            localStorage.setItem('keyboardEvent',parseInt(localStorage.getItem('screenKeyboardEvent'))+1)
+          }
         });
 
         ioHook.on('mouseclick', (event) => {
           if(localStorage.getItem('mouseEvent')){
             localStorage.setItem('mouseEvent',parseInt(localStorage.getItem('mouseEvent'))+1)
+          }
+          if(localStorage.getItem('screenMouseEvent')){
+            localStorage.setItem('screenMouseEvent',parseInt(localStorage.getItem('mouseEvent'))+1)
           }
         });
 

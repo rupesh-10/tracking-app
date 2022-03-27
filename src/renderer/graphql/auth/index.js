@@ -59,5 +59,13 @@ export default {
             ...data
           }
         })
+      },
+      setWebActivity(data){
+        return apolloProvider.mutate({
+        mutation:mutation.postWebActivity,
+        variables:{
+          ...data
+        }
+      })
       }
 }    

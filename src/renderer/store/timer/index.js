@@ -91,8 +91,8 @@ export default{
                         localStorage.removeItem('keyboardEvent')
                         localStorage.removeItem('mouseEvent')
                         if(state.trackingOn){
-                        localStorage.setItem('keyboardEvent',1)
-                        localStorage.setItem('mouseEvent',1)
+                        localStorage.setItem('screenKeyboardEvent',1)
+                        localStorage.setItem('screenMouseEvent',1)
                         }
                     })
                })
@@ -126,6 +126,9 @@ export default{
                 localStorage.setItem('activityUid',res.data.startActivity.uuid)
                 localStorage.setItem('keyboardEvent',1)
                 localStorage.setItem('mouseEvent',1)
+                localStorage.setItem('screenKeyboardEvent',1)
+                localStorage.setItem('screenMouseEvent',1)
+
             })
         },
         endActivity({dispatch,state}){
@@ -134,10 +137,11 @@ export default{
                 localStorage.removeItem('activityUid')
                 localStorage.removeItem('keyboardEvent')
                 localStorage.removeItem('mouseEvent')
+                localStorage.removeItem('screenKeyboardEvent')
+                localStorage.removeItem('screenMouseEvent')
                 localStorage.removeItem('appAndWebsiteUsed')
                 dispatch('getTotalTodayTime')
                 dispatch('getTotalWeeksTime')
-                dispatch('setAppWebsiteTime')
                 if(state.checkAppsAndWebsitesInterval) clearInterval(state.checkAppsAndWebsitesInterval)
             }).catch(error=>{
                 console.log(error)
@@ -165,62 +169,71 @@ export default{
             })
         },
 
-        checkAppsAndWebsites({commit}){
+        checkAppsAndWebsites({commit,dispatch}){
             const interval = setInterval(
                     async () =>{
                         const source = await activeWindow()
                         const storageApplication=localStorage.getItem('appAndWebsiteUsed')
                         var lastApplicationInfo=null;
-                        if(storageApplication!=null)
-                            lastApplicationInfo=JSON.parse(storageApplication)
-                        if(lastApplicationInfo!=null && lastApplicationInfo.id!=source.owner.processId){
+                        if(storageApplication)
+                        lastApplicationInfo=JSON.parse(storageApplication)
+                        if(lastApplicationInfo && lastApplicationInfo.id!=source.id){
                             //Check if browser was visited
-                            if(lastApplicationInfo.url!=null && lastApplicationInfo.url==source.url){
+                            if(lastApplicationInfo.url && lastApplicationInfo.url==source.url){
                                 return;
                             }
                             const activeDuration=(new Date().getTime() - lastApplicationInfo.start_time)/1000
 
                             if(activeDuration>15){
-                                if(lastApplicationInfo.url!=null){
-                                    console.log('Push to the server : ',lastApplicationInfo.url," using ",lastApplicationInfo.name,' after ', activeDuration)
+                                if(lastApplicationInfo.url){
+                                    dispatch('setWebTime',{activityUid:localStorage.getItem('activityUid'),name:lastApplicationInfo.name,startTime:formatDate(new Date(lastApplicationInfo.start_time)),endTime:formatDate(new Date()),url:lastApplicationInfo.url,keyClicks:parseInt(localStorage.getItem('keyboardEvent')),mouseMoves:parseInt(localStorage.getItem('mouseEvent'))})
+                                     dispatch('setAppAndWebsiteUsed',source)
+                                    
 
                                 } else{
-                                    console.log('Push to the server',lastApplicationInfo.name,' after ', activeDuration)
+                                    dispatch('setAppTime',{activityUid:localStorage.getItem('activityUid'),name:lastApplicationInfo.name,startTime:formatDate(new Date(lastApplicationInfo.start_time)),endTime:formatDate(new Date()),url:lastApplicationInfo.url,keyClicks:parseInt(localStorage.getItem('keyboardEvent')),mouseMoves:parseInt(localStorage.getItem('mouseEvent'))})
+                                    dispatch('setAppAndWebsiteUsed',source)
 
                                 }
                             }else {
-                                if(lastApplicationInfo.url!=null){
-                                    console.log('Discard : ',lastApplicationInfo.url," using ",lastApplicationInfo.name,' after ', activeDuration)
-
-                                } else{
-                                    console.log('Discard ',lastApplicationInfo.name,' after ', activeDuration)
-
-                                }
+                              dispatch('setAppAndWebsiteUsed',source)
                             }
                             localStorage.removeItem("appAndWebsiteUsed")
                         } else if(lastApplicationInfo==null){
-                            const appAndWebsiteUsed = 
-                                {
-                                    id: source.owner.processId,
-                                    name:source.owner.name,
-                                    start_time:new Date().getTime(),
-                                    url: source.url
-                                }
-                            
-                            localStorage.setItem('appAndWebsiteUsed',JSON.stringify(appAndWebsiteUsed))
+                            dispatch('setAppAndWebsiteUsed',source)
                         }
                     },
                         1000
                     )
             commit('UPDATE_CHECK_APPS_AND_WEBSITES_INTERVAL',interval) 
         },
-        setAppWebsiteTime(){
-            // const appAndWebsiteUsed = localStorage.getItem('appAndWebsiteUsed')
-            // const project = localStorage.getItem('selectedProject')
-            // useApollo.setAppWebsiteTime({activityUid:project}).then(res=>{
-            //     console.log(res)
-            // })
+        setAppAndWebsiteUsed({state},source){
+            console.log(state)
+            const appAndWebsiteUsed = 
+            {
+                id: source.id,
+                name:source.owner.name,
+                start_time:new Date().getTime(),
+                url: source.url
+            }
+        
+            localStorage.setItem('appAndWebsiteUsed',JSON.stringify(appAndWebsiteUsed))
+        },
+        setAppTime({commit},data){
+            console.log(commit)
+            useApollo.auth.setAppActivity(data).then(()=>{
+                localStorage.setItem('keyboardEvent',1)
+                localStorage.getItem('mouseEvent',1)
 
+            })
+
+        },
+        setWebTime({commit},data){
+            console.log(commit)
+            useApollo.auth.setWebActivity(data).then(()=>{
+                localStorage.setItem('keyboardEvent',1)
+                localStorage.getItem('mouseEvent',1)
+            })
         },
         setLatestCaptured({commit},image){
             console.log(image)

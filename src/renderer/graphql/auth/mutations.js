@@ -60,8 +60,16 @@ postScreencastActivity:gql`
 `,
 
 postAppActivity:gql`
-  mutation postApplicationActivity($activityUid:String!){
-    postApplicationActivity(activityUid:$activityUid){
+  mutation postApplicationActivity($activityUid:String!,$startTime:DateTime!,$endTime:DateTime!,$name:String!,$mouseMoves:Int!,$keyClicks:Int!){
+    postApplicationActivity(activityUid:$activityUid,input:{name:$name,startTime:$startTime,endTime:$endTime},meta:{mouseMoves:$mouseMoves,keyClicks:$keyClicks}){
+      startedAt
+    }
+  }
+`,
+
+postWebActivity:gql`
+  mutation postWebsiteActivity($activityUid:String!,$startTime:DateTime!,$endTime:DateTime!,$name:String!,$url:String!,$mouseMoves:Int!,$keyClicks:Int!){
+    postWebsiteActivity(activityUid:$activityUid,input:{name:$name,url:$url,startTime:$startTime,endTime:$endTime},meta:{mouseMoves:$mouseMoves,keyClicks:$keyClicks}){
       startedAt
     }
   }
