@@ -9,6 +9,11 @@
                         <img :src="image">
                     </div>
                 </div>
+                <div class="row pt-2">
+                    <div class="col-md-12">
+                        <h4 class="mt-1 ml-1"><a href="#" style="text-decoration:none;">View Work Diary</a></h4>
+                    </div>
+                </div>
             </div>
         </div>
 </template>

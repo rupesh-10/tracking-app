@@ -7,7 +7,6 @@ const isDevelopment = process.env.NODE_ENV !== 'production'
 let win;
 let screenCaptureWindow;
 let image;
-
 require('@electron/remote/main').initialize()
 
 app.allowRendererProcessReuse = false
@@ -23,7 +22,7 @@ async function createWindow() {
     width: 368,
     height: 630,
     maximizable:false,
-    resizable:process.env.VUE_DEV_TOOLS!=null?true:false,
+    resizable:true,
     autoHideMenuBar: true,
     webPreferences: {
       
@@ -33,7 +32,7 @@ async function createWindow() {
       contextIsolation: false,
       enableRemoteModule: true,
       // preload: path.join(app.getAppPath(), 'preload.js')
-      devTools: process.env.VUE_DEV_TOOLS
+      devTools: true
       // contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION,
     }
   })
@@ -49,18 +48,17 @@ async function createWindow() {
   }
 
     // Set a variable when the app is quitting.
-    var isAppQuitting = false;
-    console.log(win)
-    app.on('before-quit', function () {
-        isAppQuitting = true;
-    });
+    // var isAppQuitting = false;
+    // app.on('before-quit', function () {
+    //     isAppQuitting = true;
+    // });
   
-    win.on('close', function (evt) {
-        if (!isAppQuitting) {
-            evt.preventDefault();
-            win.hide();
-        }
-    });
+    // win.on('close', function (evt) {
+    //     if (!isAppQuitting) {
+    //         evt.preventDefault();
+    //         win.hide();
+    //     }
+    // });
   
 
 }
@@ -70,7 +68,7 @@ async function createScreenCaptureWindow(){
   screenCaptureWindow = new BrowserWindow({
     width: 350,
     height: 280,
-    resizable:false,
+    resizable:isDevelopment,
     x: width - 380,
     y: height - 260,
     movable:false,

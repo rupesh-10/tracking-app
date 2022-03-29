@@ -23,14 +23,14 @@
                 </div>
                 <div class="row ">
                     <div class="col-6"> 
-                    <h6 class="title">{{ todaysTime.hours }} hrs {{ showTime(todaysTime.minutes) }} m</h6>
+                    <h6 class="title" v-if="todaysTime.hours!=null">{{ todaysTime.hours }} hrs {{ showTime(todaysTime.minutes) }} m</h6>
                      <h4 class="description ">Today ({{allDays[todayDate.getDay()]}})</h4>
                     </div>
                     <!-- <div>
                           <b-form-checkbox v-model="checked" name="check-button" switch></b-form-checkbox>
                     </div> -->
                     <div class="col-6 week-description">
-                        <h6 class="title text-right "> <span :class="weeksTime.hours>limit ? 'text-red' : ''"> {{showTime(weeksTime.hours)}}:{{showTime(weeksTime.minutes)}} </span> of {{limit}} hrs</h6>
+                        <h6 class="title text-right " v-if="weeksTime !=null && weeksTime.hours!=null"> <span :class="weeksTime.hours>limit ? 'text-red' : ''"> {{showTime(weeksTime.hours)}}:{{showTime(weeksTime.minutes)}} </span> of {{limit}} hrs</h6>
                         <h4 class="description ">This Week (UTC) </h4>
                     </div>
                 </div>
@@ -83,7 +83,7 @@ export default {
   computed: {
     hours: {
       get() {
-        return this.$store.state.timer.hours;
+        return this.$store.state.timer?.hours;
       },
       set(value) {
         this.$store.commit("timer/SET_HOURS", value);
@@ -210,18 +210,11 @@ export default {
         setTimeout(this.idle, 10000);
       }
     },
-    online(oldValue,newValue){
-        if (oldValue && !newValue) {
+    online(value){
+        if (!value) {
         this.sendNotification({
           title: "Connection Lost",
           body: "We couldn't find network, Please check your internet connection",
-        });
-      }
-      if(!oldValue && newValue){
-         this.fetchAllTimes()
-        this.sendNotification({
-          title: "Connection Back",
-          body: "Your Connection Restore!!",
         });
       }
     }

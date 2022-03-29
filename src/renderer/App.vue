@@ -2,7 +2,7 @@
   <div id="app" class="container">
       <!-- <router-link to="/">TImer</router-link>
       <router-link to="/screencaptured">Latest Image</router-link> -->
-      <navbar v-if="loggedIn && navbarHidden && project" :user-data="userData" :project="project"></navbar>
+      <navbar v-if="loggedIn" :user-data="userData"></navbar>
       <router-view></router-view>
       </div>
 </template>
@@ -31,12 +31,7 @@ export default {
        userData(){
         return this.$store.state.auth.userData
       },
-       project(){
-        return this.$store.state.auth.project
-      },
-      navbarHidden(){
-        return this.$route.name!=='projects'
-      },
+     
       loggedIn(){
         return this.$store.state.auth.loggedIn
       }

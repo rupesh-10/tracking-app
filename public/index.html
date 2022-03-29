@@ -15,14 +15,14 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.0/js/all.min.js" referrerpolicy="no-referrer"></script>
     <title><%= htmlWebpackPlugin.options.title %></title>
     <script>
-        const ioHook = require('iohook');
-
+     
+      const ioHook = window.require('iohook');
         ioHook.on('keyup', (event) => {
           if(localStorage.getItem('keyboardEvent')){
             localStorage.setItem('keyboardEvent',parseInt(localStorage.getItem('keyboardEvent'))+1)
           }
           if(localStorage.getItem('screenKeyboardEvent')){
-            localStorage.setItem('keyboardEvent',parseInt(localStorage.getItem('screenKeyboardEvent'))+1)
+            localStorage.setItem('screenKeyboardEvent',parseInt(localStorage.getItem('screenKeyboardEvent'))+1)
           }
         });
 
@@ -31,18 +31,13 @@
             localStorage.setItem('mouseEvent',parseInt(localStorage.getItem('mouseEvent'))+1)
           }
           if(localStorage.getItem('screenMouseEvent')){
-            localStorage.setItem('screenMouseEvent',parseInt(localStorage.getItem('mouseEvent'))+1)
+            localStorage.setItem('screenMouseEvent',parseInt(localStorage.getItem('screenMouseEvent'))+1)
           }
         });
 
         // Register and start hook
         ioHook.start();
 
-        // Alternatively, pass true to start in DEBUG mode.
-        ioHook.start(true);
-
-        // False to disable DEBUG. Cleaner terminal output.
-        ioHook.start(false);
     </script>
     
   </head>

@@ -15,14 +15,9 @@
         </div>
     </div>
 
-    <div class="menu">
-      <!-- <div class="col-md-2">
-        <a  href="#" class="fa-solid fa-chevron-left menu-link" @click="redirectToProject"></a>
-      </div> -->
-      <!-- <div class="col-md-10"> -->
+    <div class="menu" v-if="project && navbarHidden">
         <span class="menu-link"  @click="openTimerOffModal"><i class="fa-solid fa-chevron-left mr-2"></i>{{project ?  project.name : '' }}</span>
         <h5>{{ project ? project.company.name : '' }}</h5>
-      <!-- </div> -->
     </div>
     <timer-off-modal :toggle="toggleModal" @yes="modalAnswerYes" @no="modalAnswerNo"></timer-off-modal>
   </div>
@@ -46,10 +41,6 @@ export default{
          type:[Array,Object],
          default:()=>{}
      },
-       project:{
-         type:[Array,Object],
-         default:()=>{}
-     }
  },
  computed:{
      trackingOn: {
@@ -60,6 +51,14 @@ export default{
             return this.$store.commit("timer/SET_TRACKING_ON", value);
         },
       },
+      project(){
+        return this.$store.state.auth.project
+      },
+      navbarHidden(){
+        return this.$route.name!=='projects'
+      },
+
+
  },
  methods: {
     logout() {

@@ -101,13 +101,17 @@ export default {
               this.errorMessage = "Please fill all required fields"
               return 
           }
+          if(!this.$store.state.timer.online){
+              this.$toast.error(`Connection Lost !!!`)
+              return 
+          }
           this.isProcessing = true;
           useApollo.auth.login({username:this.userEmail, password:this.userPassword}).then(response=>{
                  const userData = response.data.login
                 this.$store.commit('auth/SET_USER_DATA',userData.user)
                 useJwt.setToken(userData.access_token)
                 setTimeout(() => {
-                    this.$router.replace({ name: 'home' }).then(() => {
+                    this.$router.replace({ name: 'projects' }).then(() => {
                     this.$toast.success(`Welcome ${userData.user.name}`)
                     this.$store.commit('auth/SET_LOGGED_IN',true)
                     
