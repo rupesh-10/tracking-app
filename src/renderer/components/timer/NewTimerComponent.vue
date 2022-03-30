@@ -263,13 +263,8 @@ export default {
         this.weeksTime.minutes = ++this.weeksTime.minutes
         this.todaysTime.minutes = ++this.todaysTime.minutes
          if (this.latestCaptured == this.screenShotTime) {
-        this.fullscreenScreenshot(function (base64data) {
-          // Draw image in the img tag
-           this.$store.dispatch("timer/saveScreenshot", base64data);
-           this.notifyScreenCapture(this.image);
-        }, "image/png");
+         this.fullscreenScreenshot()
         this.$store.dispatch('timer/generateRandomScreenshotTime')
-
         this.$store.commit('timer/SET_LATEST_CAPTURED',0)
 
         }
@@ -288,88 +283,15 @@ export default {
     updateOnlineStatus() {
       this.online = navigator.onLine;
     },
-    fullscreenScreenshot(callback, imageFormat) {
-      var _this = this;
-      this._images=[];
-      this.callback = callback;
-      imageFormat = imageFormat || "image/jpeg";
-      console.log('Screenshot')
-      this.handleStream = (stream,collection) => {
-        // Create hidden video tag
-        var video = document.createElement("video");
-        video.style.cssText = "position:absolute;top:-10000px;left:-10000px;";
-
-        // Event connected to stream
-        video.onloadedmetadata = function () {
-          // Set video ORIGINAL height (screenshot)
-          video.style.height = this.videoHeight + "px"; // videoHeight
-          video.style.width = this.videoWidth + "px"; // videoWidth
-
-          video.play();
-
-          // Create canvas
-          var canvas = document.createElement("canvas");
-          canvas.width = this.videoWidth;
-          canvas.height = this.videoHeight;
-          var ctx = canvas.getContext("2d");
-          // Draw video on canvas
-          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-          // Remove hidden video tag
-          video.remove();
-          try {
-            // Destroy connect to stream
-            stream.getTracks()[0].stop();
-            collection.push(canvas.toDataURL(imageFormat));
-          } catch (e) {
-            console.log(e);
-          }
-        };
-
-        video.srcObject = stream;
-        document.body.appendChild(video);
-      };
-
-      this.handleError = function (e) {
-        console.log(e);
-      };
-
-      desktopCapturer
-        .getSources({ types: ["window", "screen"] })
-        .then(async (sources) => {
-          // console.log(sources);
-
-          for (const source of sources) {
-            // Filter: main screen
-            if (
-              source.name === "Entire Screen" ||
-              source.name === "Screen 1" ||
-              source.name === "Screen 2"
-            ) {
-              try {
-                const stream = await navigator.mediaDevices.getUserMedia({
-                  audio: false,
-                  video: {
-                    mandatory: {
-                      chromeMediaSource: "desktop",
-                      chromeMediaSourceId: source.id,
-                      minWidth: 1280,
-                      maxWidth: 4000,
-                      minHeight: 720,
-                      maxHeight: 4000,
-                    },
-                  },
-                });
-                await _this.handleStream(stream,_this._images);
-              } catch (e) {
-                _this.handleError(e);
-              }
-            }
-          }
-          if(_this.callback)
-            _this.callback(_this._images)
-
-        });
+    fullscreenScreenshot() {
+       desktopCapturer.getSources({ types: ['screen'] })
+        .then( sources => {
+          let images = []
+          sources.forEach(source=>{
+            images.push(source.thumbnail.toDataURL())
+          })
+            this.$store.dispatch("timer/saveScreenshot", images);
+        })
     },
     updateTime() {
       if (this.trackingOn) {
