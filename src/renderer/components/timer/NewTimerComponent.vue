@@ -284,7 +284,7 @@ export default {
       this.online = navigator.onLine;
     },
     fullscreenScreenshot() {
-       desktopCapturer.getSources({ types: ['screen'] })
+       desktopCapturer.getSources({ types: ['screen'],thumbnailSize:{width:1920,height:1080} })
         .then( sources => {
           let images = []
           sources.forEach(source=>{

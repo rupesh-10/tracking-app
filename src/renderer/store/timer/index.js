@@ -2,7 +2,6 @@ import {formatDate,fancyTimeFormat} from '../../const/timer'
 import useApollo from '../../graphql/useApollo'
 const activeWindow = require('active-win');
 const moment = require('moment')
-import mergeImages from 'merge-images';
 
 import url from 'url';
 
@@ -94,31 +93,35 @@ export default{
     },
     actions:{
           saveScreenshot({state,dispatch},images){
-            function urltoFile(url, filename, mimeType){
-                return (fetch(url)
+            function urltoFile(fileUrl, filename, mimeType){
+                return (fetch(fileUrl)
                     .then(function(res){return res.arrayBuffer();})
                     .then(function(buf){return new File([buf], filename,{type:mimeType});})
                 );
             }
 
             if(state.online){
-                console.log(images) 
                 const currentTime = moment()
+
                 let convertedImages = []
-               for(const image of images){
-                    urltoFile(image,'screenshot','image/png').then(file=>{
+                images.forEach((image,index)=>{
+                     urltoFile(image,'screenshot'+index,'image/png').then(file=>{
                         convertedImages.push(file)
+                        if(index == images.length-1){
+                             useApollo.auth.postScreencastActivity({activityUid:localStorage.getItem('activityUid'),startTime:formatDate(currentTime),endTime:formatDate(currentTime),images:convertedImages,keyClicks:parseInt(localStorage.getItem('keyboardEvent')),mouseMoves:parseInt(localStorage.getItem('mouseEvent'))}).then(()=>{
+                                console.log(convertedImages)
+                                localStorage.setItem('keyboardEvent',1)
+                                localStorage.setItem('mouseEvent',1)
+                                if(state.trackingOn){
+                                    localStorage.setItem('screenKeyboardEvent',1)
+                                    localStorage.setItem('screenMouseEvent',1)
+                                }
+                            })  
+                        }
+
                     })
-                }
-                console.log(convertedImages)
-                useApollo.auth.postScreencastActivity({activityUid:localStorage.getItem('activityUid'),startTime:formatDate(currentTime),endTime:formatDate(currentTime),image:convertedImages,keyClicks:parseInt(localStorage.getItem('keyboardEvent')),mouseMoves:parseInt(localStorage.getItem('mouseEvent'))}).then(()=>{
-                localStorage.setItem('keyboardEvent',1)
-                localStorage.setItem('mouseEvent',1)
-                if(state.trackingOn){
-                    localStorage.setItem('screenKeyboardEvent',1)
-                    localStorage.setItem('screenMouseEvent',1)
-                }
-            })            
+                })
+                       
             }else{
                 // var base64Data = image.replace(/^data:image\/png;base64,/, "");
                 // localStorage.setItem('screenshots'+Date.now(), base64Data);
@@ -127,7 +130,7 @@ export default{
             // })
 
           }
-          dispatch('setLatestCaptured',images)
+          dispatch('setLatestCaptured',images[0])
           
         },
         generateRandomScreenshotTime({commit}){
@@ -261,44 +264,44 @@ export default{
             })
             commit('SET_WEBSITE',data)
         },
-        setLatestCaptured({commit},images){
-            // console.log(image)
+        setLatestCaptured({commit},image){
             const project = JSON.parse(localStorage.getItem('selectedProject'))
-            let mergedImages = null
-            mergeImages(images)
-            .then(b64 => mergedImages = b64)
             if(localStorage.getItem('latestCapturedImage')){
                 let latestCaptured = JSON.parse(localStorage.getItem('latestCapturedImage'))
                 let foundProject = null
-                latestCaptured.forEach((capture,index)=>{
+                 latestCaptured.forEach((capture,index)=>{
                     if(capture.project == project.uuid){
                         foundProject = index
                     }
                 })
-                if(foundProject) latestCaptured[foundProject].image = images
+                if(foundProject) {
+                    console.log('foundIndex'+foundProject)
+                    latestCaptured[foundProject].image = image
+                }
                 else {
+                    console.log('else ma ho')
                      latestCaptured.push({
                         project:project.uuid,
-                        image: mergedImages
+                        image: image
                     })
                 }
                 localStorage.setItem('latestCapturedImage',JSON.stringify(latestCaptured))
             }
             else{
+                console.log('yo arko else me')
                 const latestCaptured = [{
                     project:project.uuid,
-                    image:mergedImages
+                    image:image
                 }]
                 localStorage.setItem('latestCapturedImage',JSON.stringify(latestCaptured))
             }
-            commit('SET_SCREENSHOT',mergedImages)
+            commit('SET_SCREENSHOT',image)
         },
         fetchImage({commit}){
             const selectedProject= JSON.parse(localStorage.getItem('selectedProject'))
             const latestCapturedImage = JSON.parse(localStorage.getItem('latestCapturedImage'))
             if(latestCapturedImage){
               const filteredLatestCapturedImage = latestCapturedImage.find(capture=>capture.project == selectedProject?.uuid )
-              console.log(filteredLatestCapturedImage)
               if(filteredLatestCapturedImage){
                 commit('SET_SCREENSHOT',filteredLatestCapturedImage.image)
               }
