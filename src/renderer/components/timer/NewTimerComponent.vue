@@ -265,8 +265,8 @@ export default {
          if (this.latestCaptured == this.screenShotTime) {
         this.fullscreenScreenshot(function (base64data) {
           // Draw image in the img tag
-          this.$store.dispatch("timer/saveScreenshot", base64data);
-          this.notifyScreenCapture(this.image);
+           this.$store.dispatch("timer/saveScreenshot", base64data);
+           this.notifyScreenCapture(this.image);
         }, "image/png");
         this.$store.dispatch('timer/generateRandomScreenshotTime')
 
@@ -290,10 +290,11 @@ export default {
     },
     fullscreenScreenshot(callback, imageFormat) {
       var _this = this;
+      this._images=[];
       this.callback = callback;
       imageFormat = imageFormat || "image/jpeg";
-
-      this.handleStream = (stream) => {
+      console.log('Screenshot')
+      this.handleStream = (stream,collection) => {
         // Create hidden video tag
         var video = document.createElement("video");
         video.style.cssText = "position:absolute;top:-10000px;left:-10000px;";
@@ -314,18 +315,12 @@ export default {
           // Draw video on canvas
           ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-          if (_this.callback) {
-            // Save screenshot to base64
-            _this.callback(canvas.toDataURL(imageFormat));
-          } else {
-            console.log("Need callback!");
-          }
-
           // Remove hidden video tag
           video.remove();
           try {
             // Destroy connect to stream
             stream.getTracks()[0].stop();
+            collection.push(canvas.toDataURL(imageFormat));
           } catch (e) {
             console.log(e);
           }
@@ -342,7 +337,7 @@ export default {
       desktopCapturer
         .getSources({ types: ["window", "screen"] })
         .then(async (sources) => {
-          //console.log(sources);
+          // console.log(sources);
 
           for (const source of sources) {
             // Filter: main screen
@@ -365,12 +360,15 @@ export default {
                     },
                   },
                 });
-                _this.handleStream(stream);
+                await _this.handleStream(stream,_this._images);
               } catch (e) {
                 _this.handleError(e);
               }
             }
           }
+          if(_this.callback)
+            _this.callback(_this._images)
+
         });
     },
     updateTime() {
