@@ -1,6 +1,8 @@
 import {formatDate,fancyTimeFormat} from '../../const/timer'
 import useApollo from '../../graphql/useApollo'
 const activeWindow = require('active-win');
+const moment = require('moment')
+
 import url from 'url';
 
 export default{
@@ -100,7 +102,7 @@ export default{
 
             if(state.online){
                urltoFile(image,'screenshot.png','image/png').then(file=>{
-                   const currentTime = new Date()
+                   const currentTime = moment()
                     useApollo.auth.postScreencastActivity({activityUid:localStorage.getItem('activityUid'),startTime:formatDate(currentTime),endTime:formatDate(currentTime),image:file,keyClicks:parseInt(localStorage.getItem('keyboardEvent')),mouseMoves:parseInt(localStorage.getItem('mouseEvent'))}).then(()=>{
                         localStorage.setItem('keyboardEvent',1)
                         localStorage.setItem('mouseEvent',1)
@@ -163,10 +165,10 @@ export default{
         },
         getTotalTodayTime({commit}){
             const project = JSON.parse(localStorage.getItem('selectedProject'))
-            const currentTime = new Date()
-            const todaysTime = new Date().setHours(0,0,0,0)
+            const startTime = moment().startOf("day")
+            const endTime = moment().endOf("day")
               // Todays Total Time
-              useApollo.auth.getTotalTime({keyword:project.uuid,startTime:formatDate(new Date(todaysTime)),endTime:formatDate(currentTime)}).then(res=>{
+              useApollo.auth.getTotalTime({keyword:project.uuid,startTime:formatDate(startTime),endTime:formatDate(endTime)}).then(res=>{
                 localStorage.setItem('todaysTotalTime',JSON.stringify(fancyTimeFormat(res.data.me.duration)))
                 commit('SET_TODAYS_TIME',fancyTimeFormat(res.data.me.duration))
             })
@@ -174,10 +176,9 @@ export default{
         },
         getTotalWeeksTime({commit}){
             const project = JSON.parse(localStorage.getItem('selectedProject'))
-            const currentTime = new Date()
-            const weekFirstDay = currentTime.getDate() - currentTime.getDay();
-            const weeksTime = new Date(currentTime.setDate(weekFirstDay)).setHours(0,0,0,0)
-            useApollo.auth.getTotalTime({keyword:project.uuid,startTime:formatDate(new Date(weeksTime)),endTime:formatDate(new Date())}).then(res=>{
+            const startTime = moment().startOf("isoWeek").startOf("day")
+            const endTime = moment().endOf("isoWeek").endOf("day")
+            useApollo.auth.getTotalTime({keyword:project.uuid,startTime:formatDate(startTime),endTime:formatDate(endTime)}).then(res=>{
                 localStorage.setItem('weeksTotalTime',JSON.stringify(fancyTimeFormat(res.data.me.duration)))
                 commit('SET_WEEKS_TIME',fancyTimeFormat(res.data.me.duration))
             })
@@ -196,16 +197,16 @@ export default{
                             if(lastApplicationInfo.url && lastApplicationInfo.url==source.url){
                                 return;
                             }
-                            const activeDuration=(new Date().getTime() - lastApplicationInfo.start_time)/1000
+                            const activeDuration=(moment().unix() - moment(lastApplicationInfo.start_time).unix())
 
                             if(activeDuration>15){
                                 if(lastApplicationInfo.url){
-                                    dispatch('setWebTime',{activityUid:localStorage.getItem('activityUid'),name:lastApplicationInfo.name,startTime:formatDate(new Date(lastApplicationInfo.start_time)),endTime:formatDate(new Date()),url:lastApplicationInfo.url,keyClicks:parseInt(localStorage.getItem('keyboardEvent')),mouseMoves:parseInt(localStorage.getItem('mouseEvent'))})
+                                    dispatch('setWebTime',{activityUid:localStorage.getItem('activityUid'),name:lastApplicationInfo.name,startTime:formatDate(lastApplicationInfo.start_time),endTime:formatDate(moment()),url:lastApplicationInfo.url,keyClicks:parseInt(localStorage.getItem('keyboardEvent')),mouseMoves:parseInt(localStorage.getItem('mouseEvent'))})
                                      dispatch('setAppAndWebsiteUsed',source)
                                     
 
                                 } else{
-                                    dispatch('setAppTime',{activityUid:localStorage.getItem('activityUid'),name:lastApplicationInfo.name,startTime:formatDate(new Date(lastApplicationInfo.start_time)),endTime:formatDate(new Date()),url:lastApplicationInfo.url,keyClicks:parseInt(localStorage.getItem('keyboardEvent')),mouseMoves:parseInt(localStorage.getItem('mouseEvent'))})
+                                    dispatch('setAppTime',{activityUid:localStorage.getItem('activityUid'),name:lastApplicationInfo.name,startTime:formatDate(lastApplicationInfo.start_time),endTime:formatDate(moment()),url:lastApplicationInfo.url,keyClicks:parseInt(localStorage.getItem('keyboardEvent')),mouseMoves:parseInt(localStorage.getItem('mouseEvent'))})
                                     dispatch('setAppAndWebsiteUsed',source)
 
                                 }
@@ -232,10 +233,9 @@ export default{
             {
                 id: source.id,
                 name:source.owner.name,
-                start_time:new Date().getTime(),
+                start_time:moment(),
                 url: sourceUrl
             }
-            console.log(appAndWebsiteUsed)
             localStorage.setItem('appAndWebsiteUsed',JSON.stringify(appAndWebsiteUsed))
             commit('SET_APP_WEBSITE',appAndWebsiteUsed)
         },

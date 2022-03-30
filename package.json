@@ -29,6 +29,7 @@
     "core-js": "^3.6.5",
     "ffi-napi": "^4.0.3",
     "iohook": "^0.9.3",
+    "moment": "^2.29.1",
     "node-notifier": "^10.0.0",
     "sass": "^1.49.9",
     "sass-loader": "^10.2.1",
