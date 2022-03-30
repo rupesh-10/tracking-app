@@ -46,8 +46,9 @@ export default {
       },
       getTotalTime(data){
         return apolloProvider.query({
+          fetchPolicy: 'no-cache',
           query:queries.TOTAL_TIME_QUERY,
-          variables:{
+          variables:{ 
             ...data
           }
         })

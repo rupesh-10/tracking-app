@@ -176,7 +176,7 @@ export default{
         },
         getTotalWeeksTime({commit}){
             const project = JSON.parse(localStorage.getItem('selectedProject'))
-            const startTime = moment().startOf("isoWeek").startOf("day")
+            const startTime = moment().startOf("isoWeek").startOf("day")    
             const endTime = moment().endOf("isoWeek").endOf("day")
             useApollo.auth.getTotalTime({keyword:project.uuid,startTime:formatDate(startTime),endTime:formatDate(endTime)}).then(res=>{
                 localStorage.setItem('weeksTotalTime',JSON.stringify(fancyTimeFormat(res.data.me.duration)))
