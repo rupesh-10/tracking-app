@@ -92,26 +92,30 @@ export default{
 
     },
     actions:{
-          saveScreenshot({state,dispatch},image){
-            function urltoFile(url, filename, mimeType){
-                return (fetch(url)
-                    .then(function(res){return res.arrayBuffer();})
-                    .then(function(buf){return new File([buf], filename,{type:mimeType});})
-                );
-            }
+          saveScreenshot({state,dispatch},images){
+            // function urltoFile(url, filename, mimeType){
+            //     return (fetch(url)
+            //         .then(function(res){return res.arrayBuffer();})
+            //         .then(function(buf){return new File([buf], filename,{type:mimeType});})
+            //     );
+            // }
 
             if(state.online){
-               urltoFile(image,'screenshot.png','image/png').then(file=>{
-                   const currentTime = moment()
-                    useApollo.auth.postScreencastActivity({activityUid:localStorage.getItem('activityUid'),startTime:formatDate(currentTime),endTime:formatDate(currentTime),image:file,keyClicks:parseInt(localStorage.getItem('keyboardEvent')),mouseMoves:parseInt(localStorage.getItem('mouseEvent'))}).then(()=>{
-                        localStorage.setItem('keyboardEvent',1)
-                        localStorage.setItem('mouseEvent',1)
-                        if(state.trackingOn){
-                            localStorage.setItem('screenKeyboardEvent',1)
-                            localStorage.setItem('screenMouseEvent',1)
-                        }
-                    })
-               })
+                console.log(images)
+                return;
+               // urltoFile(images,'screenshot.png','image/png').then(file=>{
+               //      console.log(file)
+               //     const currentTime = moment()
+               //     console.log(currentTime)
+               //      // useApollo.auth.postScreencastActivity({activityUid:localStorage.getItem('activityUid'),startTime:formatDate(currentTime),endTime:formatDate(currentTime),image:file,keyClicks:parseInt(localStorage.getItem('keyboardEvent')),mouseMoves:parseInt(localStorage.getItem('mouseEvent'))}).then(()=>{
+               //      //     localStorage.setItem('keyboardEvent',1)
+               //      //     localStorage.setItem('mouseEvent',1)
+               //      //     if(state.trackingOn){
+               //      //         localStorage.setItem('screenKeyboardEvent',1)
+               //      //         localStorage.setItem('screenMouseEvent',1)
+               //      //     }
+               //      // })
+               // })
             
             }else{
                 // var base64Data = image.replace(/^data:image\/png;base64,/, "");
@@ -121,7 +125,7 @@ export default{
             // })
 
           }
-          dispatch('setLatestCaptured',image)
+          dispatch('setLatestCaptured',images)
           
         },
         generateRandomScreenshotTime({commit}){
