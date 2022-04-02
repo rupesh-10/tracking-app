@@ -52,7 +52,7 @@ export default{
         },
       },
       project(){
-        return this.$store.state.auth.project
+        return this.$store.state.timer.project
       },
       navbarHidden(){
         return this.$route.name!=='projects'

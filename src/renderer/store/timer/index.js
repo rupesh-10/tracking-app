@@ -24,9 +24,12 @@ export default{
         screenShotTime:null,
         latestCaptured: 0,
         checkAppsAndWebsitesInterval:null,
+        touchActivityInterval:null,
         website:null,
         application:null,
         app_website:null,
+        project:JSON.parse(localStorage.getItem('selectedProject')),
+        projectUid:JSON.parse(localStorage.getItem('selectedProject'))?.uuid,
     },
     getters:{
 
@@ -89,6 +92,17 @@ export default{
         SET_APP_WEBSITE(state,payload){
             state.app_website = payload
         },
+        SET_TOUCH_ACTIVITY_INTERVAL(state,payload){
+            state.touchActivityInterval = payload
+        },
+        SET_PROJECT(state,payload){
+            localStorage.setItem('selectedProject',JSON.stringify(payload))
+            state.project = JSON.parse(localStorage.getItem('selectedProject'))
+            this.commit('timer/SET_PROJECT_UUID',state.project.uuid)
+        },
+        SET_PROJECT_UUID(state,payload){
+            state.projectUid = payload
+        }
 
     },
     actions:{
@@ -108,7 +122,7 @@ export default{
                      urltoFile(image,'screenshot'+index,'image/png').then(file=>{
                         convertedImages.push(file)
                         if(index == images.length-1){
-                             useApollo.auth.postScreencastActivity({activityUid:localStorage.getItem('activityUid'),startTime:formatDate(currentTime),endTime:formatDate(currentTime),images:convertedImages,keyClicks:parseInt(localStorage.getItem('keyboardEvent')),mouseMoves:parseInt(localStorage.getItem('mouseEvent'))}).then(()=>{
+                             useApollo.activity.postScreencastActivity({activityUid:localStorage.getItem('activityUid'),startTime:formatDate(currentTime),endTime:formatDate(currentTime),images:convertedImages,keyClicks:parseInt(localStorage.getItem('keyboardEvent')),mouseMoves:parseInt(localStorage.getItem('mouseEvent'))}).then(()=>{
                                 console.log(convertedImages)
                                 localStorage.setItem('keyboardEvent',1)
                                 localStorage.setItem('mouseEvent',1)
@@ -144,21 +158,19 @@ export default{
                 commit('SET_SCREENSHOT_TIME',rand)
         },
 
-        startActivity({dispatch}){
-            const project = JSON.parse(localStorage.getItem('selectedProject'))
+        startActivity({dispatch,state}){
             dispatch('checkAppsAndWebsites')
-            useApollo.auth.startActivity({projectUid:project.uuid}).then(res=>{
+            useApollo.activity.startActivity({projectUid:state.projectUid}).then(res=>{
                 localStorage.setItem('activityUid',res.data.startActivity.uuid)
                 localStorage.setItem('keyboardEvent',1)
                 localStorage.setItem('mouseEvent',1)
                 localStorage.setItem('screenKeyboardEvent',1)
                 localStorage.setItem('screenMouseEvent',1)
-
+                dispatch('touchActivity')
             })
         },
         endActivity({dispatch,state}){
-            const project = JSON.parse(localStorage.getItem('selectedProject'))
-            useApollo.auth.endActivity({projectUid:project.uuid,activityUid:localStorage.getItem('activityUid')}).then(()=>{
+            useApollo.activity.endActivity({projectUid:state.projectUid,activityUid:localStorage.getItem('activityUid')}).then(()=>{
                 localStorage.removeItem('activityUid')
                 localStorage.removeItem('keyboardEvent')
                 localStorage.removeItem('mouseEvent')
@@ -168,28 +180,27 @@ export default{
                 dispatch('getTotalTodayTime')
                 dispatch('getTotalWeeksTime')
                 if(state.checkAppsAndWebsitesInterval) clearInterval(state.checkAppsAndWebsitesInterval)
+                if(state.touchActivityInterval) clearInterval(state.touchActivityInterval)
             }).catch(error=>{
                 console.log(error)
             })
         },
-        getTotalTodayTime({commit}){
-            const project = JSON.parse(localStorage.getItem('selectedProject'))
+        getTotalTodayTime({commit,state}){
             const startTime = moment().startOf("day")
             const endTime = moment().endOf("day")
               // Todays Total Time
-              useApollo.auth.getTotalTime({keyword:project.uuid,startTime:formatDate(startTime),endTime:formatDate(endTime)}).then(res=>{
-                localStorage.setItem('todaysTotalTime',JSON.stringify(fancyTimeFormat(res.data.me.duration)))
-                commit('SET_TODAYS_TIME',fancyTimeFormat(res.data.me.duration))
+              useApollo.activity.getTotalTime({keyword:state.projectUid,startTime:formatDate(startTime),endTime:formatDate(endTime)}).then(res=>{
+                localStorage.setItem('todaysTotalTime',JSON.stringify(fancyTimeFormat(res?.data?.me?.duration)))
+                commit('SET_TODAYS_TIME',fancyTimeFormat(res?.data?.me?.duration))
             })
 
         },
-        getTotalWeeksTime({commit}){
-            const project = JSON.parse(localStorage.getItem('selectedProject'))
+        getTotalWeeksTime({commit,state}){
             const startTime = moment().startOf("isoWeek").startOf("day")    
             const endTime = moment().endOf("isoWeek").endOf("day")
-            useApollo.auth.getTotalTime({keyword:project.uuid,startTime:formatDate(startTime),endTime:formatDate(endTime)}).then(res=>{
-                localStorage.setItem('weeksTotalTime',JSON.stringify(fancyTimeFormat(res.data.me.duration)))
-                commit('SET_WEEKS_TIME',fancyTimeFormat(res.data.me.duration))
+            useApollo.activity.getTotalTime({keyword:state.projectUid,startTime:formatDate(startTime),endTime:formatDate(endTime)}).then(res=>{
+                localStorage.setItem('weeksTotalTime',JSON.stringify(fancyTimeFormat(res?.data?.me?.duration)))
+                commit('SET_WEEKS_TIME',fancyTimeFormat(res?.data?.me?.duration))
             })
         },
 
@@ -249,7 +260,7 @@ export default{
             commit('SET_APP_WEBSITE',appAndWebsiteUsed)
         },
         setAppTime({commit},data){            
-            useApollo.auth.setAppActivity(data).then(()=>{
+            useApollo.activity.setAppActivity(data).then(()=>{
                 localStorage.setItem('keyboardEvent',1)
                 localStorage.setItem('mouseEvent',1)
 
@@ -258,30 +269,27 @@ export default{
 
         },
         setWebTime({commit},data){
-            useApollo.auth.setWebActivity(data).then(()=>{
+            useApollo.activity.setWebActivity(data).then(()=>{
                 localStorage.setItem('keyboardEvent',1)
                 localStorage.setItem('mouseEvent',1)
             })
             commit('SET_WEBSITE',data)
         },
-        setLatestCaptured({commit},image){
-            const project = JSON.parse(localStorage.getItem('selectedProject'))
+        setLatestCaptured({commit,state},image){
             if(localStorage.getItem('latestCapturedImage')){
                 let latestCaptured = JSON.parse(localStorage.getItem('latestCapturedImage'))
                 let foundProject = null
                  latestCaptured.forEach((capture,index)=>{
-                    if(capture.project == project.uuid){
+                    if(capture.project == state.projectUid){
                         foundProject = index
                     }
                 })
                 if(foundProject) {
-                    console.log('foundIndex'+foundProject)
                     latestCaptured[foundProject].image = image
                 }
                 else {
-                    console.log('else ma ho')
                      latestCaptured.push({
-                        project:project.uuid,
+                        project:state.projectUid,
                         image: image
                     })
                 }
@@ -290,7 +298,7 @@ export default{
             else{
                 console.log('yo arko else me')
                 const latestCaptured = [{
-                    project:project.uuid,
+                    project:state.projectUid,
                     image:image
                 }]
                 localStorage.setItem('latestCapturedImage',JSON.stringify(latestCaptured))
@@ -308,5 +316,14 @@ export default{
               else commit('SET_SCREENSHOT',require('../../assets/images/no-image.jpg')) 
             }
         },
+
+        touchActivity({commit,state}){
+            const interval = setInterval(()=>{
+                useApollo.activity.touchActivity({projectUid:state.projectUid,activityUid:localStorage.getItem('activityUid')}).then(res=>{
+                    console.log(res)
+                })
+            },60000)
+            commit('SET_TOUCH_ACTIVITY_INTERVAL',interval)
+        }
     }
 }
