@@ -239,7 +239,9 @@ export default {
       }
       this.endSession = new Date();
       clearInterval(this.timeInterval);
+      console.log("Posting application")
       this.$store.dispatch('timer/dispatchAppAndWebsiteUsed',true).then(()=>{
+        console.log("Ending activity")
         this.$store.dispatch('timer/endActivity')
       })
       this.trackingOn = false;

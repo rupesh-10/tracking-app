@@ -28,8 +28,8 @@ postScreencastActivity:gql`
 `,
 
 postAppActivity:gql`
-  mutation postApplicationActivity($activityUid:String!,$startTime:DateTime!,$endTime:DateTime!,$name:String!,$mouseMoves:Int!,$keyClicks:Int!){
-    postApplicationActivity(activityUid:$activityUid,input:{name:$name,startTime:$startTime,endTime:$endTime},meta:{mouseMoves:$mouseMoves,keyClicks:$keyClicks}){
+  mutation postApplicationActivity($activityUid:String!,$startTime:DateTime!,$endTime:DateTime!,$name:String!,$mouseMoves:Int!,$keyClicks:Int!,$idleTime:Int){
+    postApplicationActivity(activityUid:$activityUid,input:{name:$name,startTime:$startTime,endTime:$endTime},meta:{mouseMoves:$mouseMoves,keyClicks:$keyClicks,idleTime:$idleTime}){
       startedAt
       endedAt
     }
@@ -37,8 +37,8 @@ postAppActivity:gql`
 `,
 
 postWebActivity:gql`
-  mutation postWebsiteActivity($activityUid:String!,$startTime:DateTime!,$endTime:DateTime!,$name:String!,$url:String!,$mouseMoves:Int!,$keyClicks:Int!){
-    postWebsiteActivity(activityUid:$activityUid,input:{name:$url,browser:$name,startTime:$startTime,endTime:$endTime},meta:{mouseMoves:$mouseMoves,keyClicks:$keyClicks}){
+  mutation postWebsiteActivity($activityUid:String!,$startTime:DateTime!,$endTime:DateTime!,$name:String!,$url:String!,$mouseMoves:Int!,$keyClicks:Int!,$idleTime:Int){
+    postWebsiteActivity(activityUid:$activityUid,input:{name:$url,browser:$name,startTime:$startTime,endTime:$endTime},meta:{mouseMoves:$mouseMoves,keyClicks:$keyClicks,idleTime:$idleTime}){
       startedAt
       endedAt
     }

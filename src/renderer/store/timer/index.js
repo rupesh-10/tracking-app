@@ -2,6 +2,8 @@ import {formatDate,fancyTimeFormat} from '../../const/timer'
 import useApollo from '../../graphql/useApollo'
 const activeWindow = require('active-win');
 const moment = require('moment')
+import { powerMonitor } from "@electron/remote";
+
 
 import url from 'url';
 
@@ -17,6 +19,8 @@ export default{
         isNotWorking:true,
         userIsIdle:false,
         idleTime:0,
+        activityIdleTime:0,
+        lastInactivity:0,
         startSession:null,
         endSession:null,
         todaysTime:JSON.parse(localStorage.getItem('todaysTotalTime')),
@@ -102,7 +106,13 @@ export default{
         },
         SET_PROJECT_UUID(state,payload){
             state.projectUid = payload
-        }
+        },
+        SET_ACTIVITY_IDLE_TIME(state,payload){
+            state.activityIdleTime = payload
+        },
+        SET_LAST_INACTIVITY(state,payload){
+            state.lastInactivity = payload
+        },
 
     },
     actions:{
@@ -157,7 +167,7 @@ export default{
                 commit('SET_SCREENSHOT_TIME',rand)
         },
 
-        startActivity({dispatch,state}){
+        startActivity({commit,dispatch,state}){
             useApollo.activity.startActivity({projectUid:state.projectUid}).then(res=>{
                 localStorage.removeItem('appAndWebsiteUsed')
                 dispatch('touchActivity')
@@ -167,6 +177,8 @@ export default{
                 localStorage.setItem('mouseEvent',1)
                 localStorage.setItem('screenKeyboardEvent',1)
                 localStorage.setItem('screenMouseEvent',1)
+                commit('SET_ACTIVITY_IDLE_TIME',0);
+                commit('SET_LAST_INACTIVITY',0);
             })
         },
         endActivity({dispatch,state}){
@@ -221,32 +233,51 @@ export default{
                     )
             commit('UPDATE_CHECK_APPS_AND_WEBSITES_INTERVAL',interval) 
         },
-        async dispatchAppAndWebsiteUsed({dispatch},forcePost=null){
-            console.log("Checking Applications");
-
+        async dispatchAppAndWebsiteUsed({commit,dispatch,state},forcePost=null){
             const source = await activeWindow()
+            const systemIdleTime=powerMonitor.getSystemIdleTime();
+            if(systemIdleTime>state.lastInactivity){
+
+                commit("SET_ACTIVITY_IDLE_TIME",state.activityIdleTime+systemIdleTime-state.lastInactivity)
+                commit("SET_LAST_INACTIVITY",systemIdleTime)
+            } else{
+                commit("SET_LAST_INACTIVITY",0)
+            }
             const storageApplication=localStorage.getItem('appAndWebsiteUsed')
             var lastApplicationInfo=null;
             if(storageApplication)
             lastApplicationInfo=JSON.parse(storageApplication)
             const urlChanged=(lastApplicationInfo && lastApplicationInfo.url && lastApplicationInfo.url==source.url)
             if(forcePost || urlChanged || (lastApplicationInfo && lastApplicationInfo.id!=source.id)){
-                // //Check if browser was visited
-                // if(lastApplicationInfo.url && lastApplicationInfo.url==source.url){
-                //     return;
-                // }
+                if(lastApplicationInfo==null)
+                    return;
                 const activeDuration=(moment().unix() - moment(lastApplicationInfo.start_time).unix())
 
                 if(activeDuration>15){
                     if(lastApplicationInfo.url){
-                        dispatch('setWebTime',{activityUid:localStorage.getItem('activityUid'),name:lastApplicationInfo.name,startTime:formatDate(lastApplicationInfo.start_time),endTime:formatDate(moment()),url:lastApplicationInfo.url,keyClicks:parseInt(localStorage.getItem('keyboardEvent')),mouseMoves:parseInt(localStorage.getItem('mouseEvent'))})
+                        dispatch('setWebTime',{
+                                activityUid:localStorage.getItem('activityUid'),
+                                name:lastApplicationInfo.name,
+                                startTime:formatDate(lastApplicationInfo.start_time),
+                                endTime:formatDate(moment()),
+                                url:lastApplicationInfo.url,
+                                keyClicks:parseInt(localStorage.getItem('keyboardEvent')),
+                                mouseMoves:parseInt(localStorage.getItem('mouseEvent')),
+                                idleTime: state.activityIdleTime
+                        })
                         dispatch('setAppAndWebsiteUsed',source)
-                        
-
                     } else{
-                        dispatch('setAppTime',{activityUid:localStorage.getItem('activityUid'),name:lastApplicationInfo.name,startTime:formatDate(lastApplicationInfo.start_time),endTime:formatDate(moment()),url:lastApplicationInfo.url,keyClicks:parseInt(localStorage.getItem('keyboardEvent')),mouseMoves:parseInt(localStorage.getItem('mouseEvent'))})
+                        dispatch('setAppTime',{
+                            activityUid:localStorage.getItem('activityUid'),
+                            name:lastApplicationInfo.name,
+                            startTime:formatDate(lastApplicationInfo.start_time),
+                            endTime:formatDate(moment()),
+                            url:lastApplicationInfo.url,
+                            keyClicks:parseInt(localStorage.getItem('keyboardEvent')),
+                            mouseMoves:parseInt(localStorage.getItem('mouseEvent')),
+                            idleTime: state.activityIdleTime
+                        })
                         dispatch('setAppAndWebsiteUsed',source)
-
                     }
                 }else {
                   dispatch('setAppAndWebsiteUsed',source)
@@ -272,6 +303,7 @@ export default{
             }
             localStorage.setItem('appAndWebsiteUsed',JSON.stringify(appAndWebsiteUsed))
             commit('SET_APP_WEBSITE',appAndWebsiteUsed)
+            commit('SET_ACTIVITY_IDLE_TIME',0)
         },
         setAppTime({commit},data){            
             useApollo.activity.setAppActivity(data).then(()=>{
@@ -310,7 +342,6 @@ export default{
                 localStorage.setItem('latestCapturedImage',JSON.stringify(latestCaptured))
             }
             else{
-                console.log('yo arko else me')
                 const latestCaptured = [{
                     project:state.projectUid,
                     image:image
@@ -333,7 +364,6 @@ export default{
 
         touchActivity({commit,state}){
             const interval = setInterval(()=>{
-                console.log("Touching");
 
                 useApollo.activity.touchActivity({projectUid:state.projectUid,activityUid:localStorage.getItem('activityUid')}).then(res=>{
                     console.log(res)
