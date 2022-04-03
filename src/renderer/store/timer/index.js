@@ -212,11 +212,12 @@ export default{
                         var lastApplicationInfo=null;
                         if(storageApplication)
                         lastApplicationInfo=JSON.parse(storageApplication)
-                        if(lastApplicationInfo && lastApplicationInfo.id!=source.id){
-                            //Check if browser was visited
-                            if(lastApplicationInfo.url && lastApplicationInfo.url==source.url){
-                                return;
-                            }
+                        const urlChanged=(lastApplicationInfo && lastApplicationInfo.url && lastApplicationInfo.url==source.url)
+                        if(urlChanged || (lastApplicationInfo && lastApplicationInfo.id!=source.id)){
+                            // //Check if browser was visited
+                            // if(lastApplicationInfo.url && lastApplicationInfo.url==source.url){
+                            //     return;
+                            // }
                             const activeDuration=(moment().unix() - moment(lastApplicationInfo.start_time).unix())
 
                             if(activeDuration>15){
