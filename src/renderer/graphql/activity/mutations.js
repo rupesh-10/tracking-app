@@ -4,6 +4,7 @@ startActivity: gql `
 mutation startActivity($projectUid:String!) {
   startActivity(projectUid:$projectUid){
     uuid
+    startedAt
   }
 }
 `,
@@ -12,6 +13,8 @@ endActivity: gql `
 mutation endActivity($projectUid:String!,$activityUid:String!) {
   endActivity(projectUid:$projectUid,activityUid:$activityUid){
     uuid
+    startedAt
+    endedAt
   }
 }
 `,
@@ -28,6 +31,7 @@ postAppActivity:gql`
   mutation postApplicationActivity($activityUid:String!,$startTime:DateTime!,$endTime:DateTime!,$name:String!,$mouseMoves:Int!,$keyClicks:Int!){
     postApplicationActivity(activityUid:$activityUid,input:{name:$name,startTime:$startTime,endTime:$endTime},meta:{mouseMoves:$mouseMoves,keyClicks:$keyClicks}){
       startedAt
+      endedAt
     }
   }
 `,
@@ -36,6 +40,7 @@ postWebActivity:gql`
   mutation postWebsiteActivity($activityUid:String!,$startTime:DateTime!,$endTime:DateTime!,$name:String!,$url:String!,$mouseMoves:Int!,$keyClicks:Int!){
     postWebsiteActivity(activityUid:$activityUid,input:{name:$url,browser:$name,startTime:$startTime,endTime:$endTime},meta:{mouseMoves:$mouseMoves,keyClicks:$keyClicks}){
       startedAt
+      endedAt
     }
   }
 `,

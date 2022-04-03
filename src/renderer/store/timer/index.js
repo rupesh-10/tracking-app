@@ -148,9 +148,8 @@ export default{
           
         },
         generateRandomScreenshotTime({commit}){
-                const max = 2
-                const min = 1
-                
+                const max = 16
+                const min = 2
                 let difference = max - min;
                 let rand = Math.random();
                 rand = Math.floor( rand * difference);
@@ -159,28 +158,36 @@ export default{
         },
 
         startActivity({dispatch,state}){
-            dispatch('checkAppsAndWebsites')
             useApollo.activity.startActivity({projectUid:state.projectUid}).then(res=>{
+                localStorage.removeItem('appAndWebsiteUsed')
+                dispatch('touchActivity')
+                dispatch('checkAppsAndWebsites')
                 localStorage.setItem('activityUid',res.data.startActivity.uuid)
                 localStorage.setItem('keyboardEvent',1)
                 localStorage.setItem('mouseEvent',1)
                 localStorage.setItem('screenKeyboardEvent',1)
                 localStorage.setItem('screenMouseEvent',1)
-                dispatch('touchActivity')
             })
         },
         endActivity({dispatch,state}){
-            useApollo.activity.endActivity({projectUid:state.projectUid,activityUid:localStorage.getItem('activityUid')}).then(()=>{
+            if(state.checkAppsAndWebsitesInterval) 
+                clearInterval(state.checkAppsAndWebsitesInterval)
+            localStorage.removeItem('appAndWebsiteUsed')
+            if(state.touchActivityInterval) 
+                clearInterval(state.touchActivityInterval)
+            useApollo.activity.endActivity({projectUid:state.projectUid,activityUid:localStorage.getItem('activityUid')}).then(async ()=>{
                 localStorage.removeItem('activityUid')
                 localStorage.removeItem('keyboardEvent')
                 localStorage.removeItem('mouseEvent')
                 localStorage.removeItem('screenKeyboardEvent')
                 localStorage.removeItem('screenMouseEvent')
                 localStorage.removeItem('appAndWebsiteUsed')
+
                 dispatch('getTotalTodayTime')
                 dispatch('getTotalWeeksTime')
-                if(state.checkAppsAndWebsitesInterval) clearInterval(state.checkAppsAndWebsitesInterval)
-                if(state.touchActivityInterval) clearInterval(state.touchActivityInterval)
+                
+
+
             }).catch(error=>{
                 console.log(error)
             })
@@ -205,43 +212,49 @@ export default{
         },
 
         checkAppsAndWebsites({commit,dispatch}){
+
             const interval = setInterval(
                     async () =>{
-                        const source = await activeWindow()
-                        const storageApplication=localStorage.getItem('appAndWebsiteUsed')
-                        var lastApplicationInfo=null;
-                        if(storageApplication)
-                        lastApplicationInfo=JSON.parse(storageApplication)
-                        const urlChanged=(lastApplicationInfo && lastApplicationInfo.url && lastApplicationInfo.url==source.url)
-                        if(urlChanged || (lastApplicationInfo && lastApplicationInfo.id!=source.id)){
-                            // //Check if browser was visited
-                            // if(lastApplicationInfo.url && lastApplicationInfo.url==source.url){
-                            //     return;
-                            // }
-                            const activeDuration=(moment().unix() - moment(lastApplicationInfo.start_time).unix())
-
-                            if(activeDuration>15){
-                                if(lastApplicationInfo.url){
-                                    dispatch('setWebTime',{activityUid:localStorage.getItem('activityUid'),name:lastApplicationInfo.name,startTime:formatDate(lastApplicationInfo.start_time),endTime:formatDate(moment()),url:lastApplicationInfo.url,keyClicks:parseInt(localStorage.getItem('keyboardEvent')),mouseMoves:parseInt(localStorage.getItem('mouseEvent'))})
-                                     dispatch('setAppAndWebsiteUsed',source)
-                                    
-
-                                } else{
-                                    dispatch('setAppTime',{activityUid:localStorage.getItem('activityUid'),name:lastApplicationInfo.name,startTime:formatDate(lastApplicationInfo.start_time),endTime:formatDate(moment()),url:lastApplicationInfo.url,keyClicks:parseInt(localStorage.getItem('keyboardEvent')),mouseMoves:parseInt(localStorage.getItem('mouseEvent'))})
-                                    dispatch('setAppAndWebsiteUsed',source)
-
-                                }
-                            }else {
-                              dispatch('setAppAndWebsiteUsed',source)
-                            }
-                            localStorage.removeItem("appAndWebsiteUsed")
-                        } else if(lastApplicationInfo==null){
-                            dispatch('setAppAndWebsiteUsed',source)
-                        }
+                        dispatch('dispatchAppAndWebsiteUsed');
                     },
                         1000
                     )
             commit('UPDATE_CHECK_APPS_AND_WEBSITES_INTERVAL',interval) 
+        },
+        async dispatchAppAndWebsiteUsed({dispatch},forcePost=null){
+            console.log("Checking Applications");
+
+            const source = await activeWindow()
+            const storageApplication=localStorage.getItem('appAndWebsiteUsed')
+            var lastApplicationInfo=null;
+            if(storageApplication)
+            lastApplicationInfo=JSON.parse(storageApplication)
+            const urlChanged=(lastApplicationInfo && lastApplicationInfo.url && lastApplicationInfo.url==source.url)
+            if(forcePost || urlChanged || (lastApplicationInfo && lastApplicationInfo.id!=source.id)){
+                // //Check if browser was visited
+                // if(lastApplicationInfo.url && lastApplicationInfo.url==source.url){
+                //     return;
+                // }
+                const activeDuration=(moment().unix() - moment(lastApplicationInfo.start_time).unix())
+
+                if(activeDuration>15){
+                    if(lastApplicationInfo.url){
+                        dispatch('setWebTime',{activityUid:localStorage.getItem('activityUid'),name:lastApplicationInfo.name,startTime:formatDate(lastApplicationInfo.start_time),endTime:formatDate(moment()),url:lastApplicationInfo.url,keyClicks:parseInt(localStorage.getItem('keyboardEvent')),mouseMoves:parseInt(localStorage.getItem('mouseEvent'))})
+                        dispatch('setAppAndWebsiteUsed',source)
+                        
+
+                    } else{
+                        dispatch('setAppTime',{activityUid:localStorage.getItem('activityUid'),name:lastApplicationInfo.name,startTime:formatDate(lastApplicationInfo.start_time),endTime:formatDate(moment()),url:lastApplicationInfo.url,keyClicks:parseInt(localStorage.getItem('keyboardEvent')),mouseMoves:parseInt(localStorage.getItem('mouseEvent'))})
+                        dispatch('setAppAndWebsiteUsed',source)
+
+                    }
+                }else {
+                  dispatch('setAppAndWebsiteUsed',source)
+                }
+                
+            } else if(lastApplicationInfo==null){
+                dispatch('setAppAndWebsiteUsed',source)
+            }
         },
         setAppAndWebsiteUsed({commit},source){
             var sourceUrl=source.url
@@ -320,10 +333,12 @@ export default{
 
         touchActivity({commit,state}){
             const interval = setInterval(()=>{
+                console.log("Touching");
+
                 useApollo.activity.touchActivity({projectUid:state.projectUid,activityUid:localStorage.getItem('activityUid')}).then(res=>{
                     console.log(res)
                 })
-            },60000)
+            },5000)
             commit('SET_TOUCH_ACTIVITY_INTERVAL',interval)
         }
     }

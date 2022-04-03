@@ -239,9 +239,11 @@ export default {
       }
       this.endSession = new Date();
       clearInterval(this.timeInterval);
-      this.$store.dispatch('timer/endActivity')
+      this.$store.dispatch('timer/dispatchAppAndWebsiteUsed',true).then(()=>{
+        this.$store.dispatch('timer/endActivity')
+      })
       this.trackingOn = false;
-       this.resetTime()
+      this.resetTime()
     },
 
     showTime(i) {
