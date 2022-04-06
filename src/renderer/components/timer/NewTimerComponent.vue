@@ -43,11 +43,11 @@
     </div>
  </template>
 <script>
+import ScreenCapturedImage from '../common/ScreenCapturedImage.vue'
+import IdleModal from '../common/IdleModal.vue'
 const electron = window.require("electron");
 const { desktopCapturer } = electron; //ipcRenderer also needed to listen event
 import { powerMonitor, Notification } from "@electron/remote";
-import IdleModal from '../common/IdleModal.vue'
-import ScreenCapturedImage from '../common/ScreenCapturedImage.vue'
 
 export default {
   components: {
@@ -67,18 +67,7 @@ export default {
     };
   },
   mounted() {
-    window.addEventListener("online", this.updateOnlineStatus);
-    window.addEventListener("offline", this.updateOnlineStatus);
-    this.updateOnlineStatus();
-    powerMonitor.on("suspend", () => {
-      this.updateTime();
-    });
-    this.getIdleTime();
-    this.$store.dispatch('timer/generateRandomScreenshotTime')
-    if(this.online){
-      this.fetchAllTimes()
-    }
-    this.$store.dispatch('timer/fetchImage')
+   this.listenForEvents()
   },
   computed: {
     hours: {
@@ -192,7 +181,7 @@ export default {
     },
     selectedProject:{
       get(){
-        return this.$store.state.auth.project
+        return this.$store.state.timer.project
       }
     }
   },
@@ -339,6 +328,21 @@ export default {
       const customNotification = new Notification(options);
       customNotification.show();
     },
+    listenForEvents(){
+       window.addEventListener("online", this.updateOnlineStatus);
+        window.addEventListener("offline", this.updateOnlineStatus);
+        this.updateOnlineStatus();
+        powerMonitor.on("suspend", () => {
+          this.updateTime();
+        });
+        this.getIdleTime();
+        this.$store.dispatch('timer/generateRandomScreenshotTime')
+        if(this.online){
+          this.fetchAllTimes()
+        }
+        this.$store.dispatch('timer/fetchImage')
+        this.$store.dispatch('timer/startActivityTracking')
+    }
   },
 };
 </script>

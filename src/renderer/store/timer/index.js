@@ -2,7 +2,8 @@ import {formatDate,fancyTimeFormat} from '../../const/timer'
 import useApollo from '../../graphql/useApollo'
 const activeWindow = require('active-win');
 const moment = require('moment')
-
+const ioHook = window.require('iohook');
+     
 import url from 'url';
 
 export default{
@@ -179,6 +180,7 @@ export default{
                 localStorage.removeItem('appAndWebsiteUsed')
                 dispatch('getTotalTodayTime')
                 dispatch('getTotalWeeksTime')
+                console.log(state.checkAppsAndWebsitesInterval)
                 if(state.checkAppsAndWebsitesInterval) clearInterval(state.checkAppsAndWebsitesInterval)
                 if(state.touchActivityInterval) clearInterval(state.touchActivityInterval)
             }).catch(error=>{
@@ -195,12 +197,15 @@ export default{
             })
 
         },
-        getTotalWeeksTime({commit,state}){
+        async getTotalWeeksTime({commit,state},projectUid=null){
             const startTime = moment().startOf("isoWeek").startOf("day")    
             const endTime = moment().endOf("isoWeek").endOf("day")
-            useApollo.activity.getTotalTime({keyword:state.projectUid,startTime:formatDate(startTime),endTime:formatDate(endTime)}).then(res=>{
+            return await useApollo.activity.getTotalTime({keyword:projectUid ? projectUid : state.projectUid,startTime:formatDate(startTime),endTime:formatDate(endTime)}).then(res=>{
+                if(projectUid) return  fancyTimeFormat(res?.data?.me?.duration)
+                else{
                 localStorage.setItem('weeksTotalTime',JSON.stringify(fancyTimeFormat(res?.data?.me?.duration)))
                 commit('SET_WEEKS_TIME',fancyTimeFormat(res?.data?.me?.duration))
+                }
             })
         },
 
@@ -324,6 +329,30 @@ export default{
                 })
             },60000)
             commit('SET_TOUCH_ACTIVITY_INTERVAL',interval)
+        },
+
+        startActivityTracking(){
+            ioHook.on('keyup', () => {
+                if(localStorage.getItem('keyboardEvent')){
+                  localStorage.setItem('keyboardEvent',parseInt(localStorage.getItem('keyboardEvent'))+1)
+                }
+                if(localStorage.getItem('screenKeyboardEvent')){
+                  localStorage.setItem('screenKeyboardEvent',parseInt(localStorage.getItem('screenKeyboardEvent'))+1)
+                }
+              });
+      
+              ioHook.on('mouseclick', () => {
+                if(localStorage.getItem('mouseEvent')){
+                  localStorage.setItem('mouseEvent',parseInt(localStorage.getItem('mouseEvent'))+1)
+                }
+                if(localStorage.getItem('screenMouseEvent')){
+                  localStorage.setItem('screenMouseEvent',parseInt(localStorage.getItem('screenMouseEvent'))+1)
+                }
+              });
+      
+              // Register and start hook
+              ioHook.start();
+      
         }
     }
 }

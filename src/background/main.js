@@ -32,7 +32,7 @@ async function createWindow() {
       contextIsolation: false,
       enableRemoteModule: true,
       // preload: path.join(app.getAppPath(), 'preload.js')
-      devTools: true
+      devTools: true,
       // contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION,
     }
   })
