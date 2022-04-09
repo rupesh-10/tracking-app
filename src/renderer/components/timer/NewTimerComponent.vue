@@ -346,6 +346,7 @@ export default {
         }
         this.$store.dispatch('timer/fetchImage')
         this.$store.dispatch('timer/startActivityTracking')
+        
     }
   },
 };

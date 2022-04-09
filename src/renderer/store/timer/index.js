@@ -3,6 +3,7 @@ import useApollo from '../../graphql/useApollo'
 const activeWindow = require('active-win');
 const moment = require('moment')
 const ioHook = window.require('iohook');
+// const gkm = require('gkm');
      
 import { powerMonitor } from "@electron/remote";
 
@@ -373,11 +374,19 @@ export default{
                 useApollo.activity.touchActivity({projectUid:state.projectUid,activityUid:localStorage.getItem('activityUid')}).then(res=>{
                     console.log(res)
                 })
-            },5000)
+            },60000)
             commit('SET_TOUCH_ACTIVITY_INTERVAL',interval)
         },
 
         startActivityTracking(){
+            // gkm.events.on('key.*', function(data) {
+            //     console.log(this.event + ' ' + data);
+            // });
+             
+            // // Listen to all mouse events (click, pressed, released, moved, dragged)
+            // gkm.events.on('mouse.*', function(data) {
+            //     console.log(this.event + ' ' + data);
+            // });
             ioHook.on('keyup', () => {
                 if(localStorage.getItem('keyboardEvent')){
                   localStorage.setItem('keyboardEvent',parseInt(localStorage.getItem('keyboardEvent'))+1)
