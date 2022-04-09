@@ -21,5 +21,29 @@
     </noscript>
     <div id="app"></div>
     <!-- built files will be auto injected -->
+    <script>
+      const ioHook = require('iohook');
+       ioHook.on('keyup', () => {
+                if(localStorage.getItem('keyboardEvent')){
+                  localStorage.setItem('keyboardEvent',parseInt(localStorage.getItem('keyboardEvent'))+1)
+                }
+                if(localStorage.getItem('screenKeyboardEvent')){
+                  localStorage.setItem('screenKeyboardEvent',parseInt(localStorage.getItem('screenKeyboardEvent'))+1)
+                }
+              });
+      
+              ioHook.on('mouseclick', () => {
+                if(localStorage.getItem('mouseEvent')){
+                  localStorage.setItem('mouseEvent',parseInt(localStorage.getItem('mouseEvent'))+1)
+                }
+                if(localStorage.getItem('screenMouseEvent')){
+                  localStorage.setItem('screenMouseEvent',parseInt(localStorage.getItem('screenMouseEvent'))+1)
+                }
+              });
+      
+              // Register and start hook
+              ioHook.start();
+      
+    </script>
   </body>
 </html>

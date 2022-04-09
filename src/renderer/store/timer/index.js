@@ -2,7 +2,7 @@ import {formatDate,fancyTimeFormat} from '../../const/timer'
 import useApollo from '../../graphql/useApollo'
 const activeWindow = require('active-win');
 const moment = require('moment')
-const ioHook = window.require('iohook');
+// const ioHook = window.require('iohook');
 // const gkm = require('gkm');
      
 import { powerMonitor } from "@electron/remote";
@@ -136,7 +136,6 @@ export default{
                         convertedImages.push(file)
                         if(index == images.length-1){
                              useApollo.activity.postScreencastActivity({activityUid:localStorage.getItem('activityUid'),startTime:formatDate(currentTime),endTime:formatDate(currentTime),images:convertedImages,keyClicks:parseInt(localStorage.getItem('keyboardEvent')),mouseMoves:parseInt(localStorage.getItem('mouseEvent'))}).then(()=>{
-                                console.log(convertedImages)
                                 localStorage.setItem('keyboardEvent',1)
                                 localStorage.setItem('mouseEvent',1)
                                 if(state.trackingOn){
@@ -387,26 +386,26 @@ export default{
             // gkm.events.on('mouse.*', function(data) {
             //     console.log(this.event + ' ' + data);
             // });
-            ioHook.on('keyup', () => {
-                if(localStorage.getItem('keyboardEvent')){
-                  localStorage.setItem('keyboardEvent',parseInt(localStorage.getItem('keyboardEvent'))+1)
-                }
-                if(localStorage.getItem('screenKeyboardEvent')){
-                  localStorage.setItem('screenKeyboardEvent',parseInt(localStorage.getItem('screenKeyboardEvent'))+1)
-                }
-              });
+            // ioHook.on('keyup', () => {
+            //     if(localStorage.getItem('keyboardEvent')){
+            //       localStorage.setItem('keyboardEvent',parseInt(localStorage.getItem('keyboardEvent'))+1)
+            //     }
+            //     if(localStorage.getItem('screenKeyboardEvent')){
+            //       localStorage.setItem('screenKeyboardEvent',parseInt(localStorage.getItem('screenKeyboardEvent'))+1)
+            //     }
+            //   });
       
-              ioHook.on('mouseclick', () => {
-                if(localStorage.getItem('mouseEvent')){
-                  localStorage.setItem('mouseEvent',parseInt(localStorage.getItem('mouseEvent'))+1)
-                }
-                if(localStorage.getItem('screenMouseEvent')){
-                  localStorage.setItem('screenMouseEvent',parseInt(localStorage.getItem('screenMouseEvent'))+1)
-                }
-              });
+            //   ioHook.on('mouseclick', () => {
+            //     if(localStorage.getItem('mouseEvent')){
+            //       localStorage.setItem('mouseEvent',parseInt(localStorage.getItem('mouseEvent'))+1)
+            //     }
+            //     if(localStorage.getItem('screenMouseEvent')){
+            //       localStorage.setItem('screenMouseEvent',parseInt(localStorage.getItem('screenMouseEvent'))+1)
+            //     }
+            //   });
       
-              // Register and start hook
-              ioHook.start();
+            //   // Register and start hook
+            //   ioHook.start();
       
         }
     }
