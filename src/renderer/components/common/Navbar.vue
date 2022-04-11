@@ -76,6 +76,7 @@ export default{
       localStorage.removeItem(useJwt.jwtConfig.storageTokenKeyName)
       localStorage.removeItem('userData')
       localStorage.removeItem('selectedProject')
+      localStorage.removeItem('latestCapturedImage')
       this.$router.push({ name: 'login' })
     },
 

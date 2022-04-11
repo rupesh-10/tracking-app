@@ -7,13 +7,13 @@
             <div class="mt-3">
                 <h3 class="text-white">Please Select Project</h3>
             </div>
-            <div class="project-row project-card mt-3 p-3" v-for="(project,index) in projects" :key="project.project.uuid">
+            <div class="project-row project-card mt-3 p-3" v-for="(project) in projects" :key="project.project.uuid">
                 <div class="col-md-10">
                 <h3 class="project-name" @click="selectProject(project)">{{ project.project.name }}</h3>
                 <h5>{{ project.project.company.name }}</h5>
                 </div>
                 <div class="col-md-2">
-                    {{ getProjectWeekTime(project.project.uuid,index) }} of 50hrs
+                    <!-- {{ getProjectWeekTime(project.project.uuid,index) }} of 50hrs -->
                 </div>
             </div>
             <hr>

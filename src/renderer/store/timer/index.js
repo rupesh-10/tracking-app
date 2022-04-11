@@ -160,12 +160,13 @@ export default{
           
         },
         generateRandomScreenshotTime({commit}){
-                const max = 16
-                const min = 2
-                let difference = max - min;
-                let rand = Math.random();
-                rand = Math.floor( rand * difference);
-                rand = rand + min;
+                let max = 10
+                // const min = process.env.MIN_SCREEN_CAPTURE_TIME
+                const rand = max
+                // let difference = max - min;
+                // let rand = Math.random();
+                // rand = Math.floor( rand * difference);
+                // rand = rand + min;
                 commit('SET_SCREENSHOT_TIME',rand)
         },
 
@@ -183,7 +184,7 @@ export default{
                 commit('SET_LAST_INACTIVITY',0);
             })
         },
-        endActivity({dispatch,state}){
+        async endActivity({dispatch,state}){
             if(state.checkAppsAndWebsitesInterval) 
                 clearInterval(state.checkAppsAndWebsitesInterval)
             localStorage.removeItem('appAndWebsiteUsed')
@@ -196,13 +197,11 @@ export default{
                 localStorage.removeItem('screenKeyboardEvent')
                 localStorage.removeItem('screenMouseEvent')
                 localStorage.removeItem('appAndWebsiteUsed')
-
                 dispatch('getTotalTodayTime')
                 dispatch('getTotalWeeksTime')
-                console.log(state.checkAppsAndWebsitesInterval)
                 if(state.checkAppsAndWebsitesInterval) clearInterval(state.checkAppsAndWebsitesInterval)
                 if(state.touchActivityInterval) clearInterval(state.touchActivityInterval)
-            }).catch(error=>{
+            }).catch((error)=>{
                 console.log(error)
             })
         },

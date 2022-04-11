@@ -8,7 +8,8 @@
                     <div class="col-9">
                          <div class="hours">
                                <span class="hours">{{ hours }} hrs </span>
-                                 <span class="minutes">{{ showTime(minutes) }} m</span>
+                                 <span class="minutes">{{ showTime(minutes) }} m </span>
+                                 <span class="seconds">{{ showTime(seconds) }} s</span>
                          </div>
                      <h4 class="">Current Session</h4>
                     </div>
@@ -228,13 +229,13 @@ export default {
       }
       this.endSession = new Date();
       clearInterval(this.timeInterval);
-      console.log("Posting application")
       this.$store.dispatch('timer/dispatchAppAndWebsiteUsed',true).then(()=>{
-        console.log("Ending activity")
-        this.$store.dispatch('timer/endActivity')
+        this.$store.dispatch('timer/endActivity').then(()=>{
+          this.resetTime()
+        })
       })
       this.trackingOn = false;
-      this.resetTime()
+      
     },
 
     showTime(i) {
