@@ -29,7 +29,7 @@ export default{
         todaysTime:JSON.parse(localStorage.getItem('todaysTotalTime')),
         weeksTime:JSON.parse(localStorage.getItem('weeksTotalTime')),
         screenShotTime:null,
-        latestCaptured: 0,
+        latestCaptured:  localStorage.getItem('latestCaptured')||0,
         checkAppsAndWebsitesInterval:null,
         touchActivityInterval:null,
         website:null,
@@ -85,6 +85,7 @@ export default{
             state.screenShotTime = payload
         }},
         SET_LATEST_CAPTURED(state,payload){
+            localStorage.setItem('latestCaptured',payload)
             state.latestCaptured = payload
         },
         UPDATE_CHECK_APPS_AND_WEBSITES_INTERVAL(state,payload){
@@ -194,7 +195,7 @@ export default{
                 localStorage.removeItem('activityUid')
                 localStorage.removeItem('keyboardEvent')
                 localStorage.removeItem('mouseEvent')
-                localStorage.removeItem('screenKeyboardEvent')
+                localStorage.removeItem('screenKeyboardEvent')  
                 localStorage.removeItem('screenMouseEvent')
                 localStorage.removeItem('appAndWebsiteUsed')
                 dispatch('getTotalTodayTime')

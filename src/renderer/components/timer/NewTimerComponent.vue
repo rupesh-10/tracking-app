@@ -253,7 +253,7 @@ export default {
       this.seconds++;
       if (this.seconds == 60) {
         this.minutes = ++this.minutes;
-        this.latestCaptured = ++this.latestCaptured
+        this.$store.commit('timer/SET_LATEST_CAPTURED',this.latestCaptured+1)
         this.weeksTime.minutes = ++this.weeksTime.minutes
         this.todaysTime.minutes = ++this.todaysTime.minutes
          if (this.latestCaptured == this.screenShotTime) {
