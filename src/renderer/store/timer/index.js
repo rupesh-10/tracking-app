@@ -29,7 +29,7 @@ export default{
         todaysTime:JSON.parse(localStorage.getItem('todaysTotalTime')),
         weeksTime:JSON.parse(localStorage.getItem('weeksTotalTime')),
         screenShotTime:null,
-        latestCaptured:  localStorage.getItem('latestCaptured')||0,
+        latestCaptured:  parseInt(localStorage.getItem('latestCaptured'))||0,
         checkAppsAndWebsitesInterval:null,
         touchActivityInterval:null,
         website:null,
