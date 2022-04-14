@@ -6,5 +6,27 @@ export default {
             me{
               duration:activityDuration(project:{searchKey:UUID,keyword:$keyword}, between:{startTime:$startTime,endTime:$endTime})
             }
-}`
+}`,
+
+  LATEST_SCREEN_CAPTURE:gql`
+    query latestScreenCapture($projectUid:String!) {
+      me{
+      uuid
+      name
+      activityRecords(activityType:SCREENCAST
+        	orderBy: { column: START_TIME, order: DESC}
+        	first: 1
+          project:{searchKey:UUID,keyword:$projectUid}
+      ){
+        data{
+          record{
+            ... on Screencast{
+              title
+            }
+          }
+        }
+      }
+      }
+    }
+  `
 }

@@ -152,15 +152,9 @@ if (isDevelopment) {
 // Prevent Reloading
 if(!isDevelopment){
 app.on('browser-window-focus', function () {
-  globalShortcut.register("CommandOrControl+R", () => {
-      console.log("CommandOrControl+R is pressed: Shortcut Disabled");
-  });
-  globalShortcut.register("CommandOrControl+Shift+R", () => {
-    console.log("CommandOrControl+R is pressed: Shortcut Disabled");
-  });
-  globalShortcut.register("F5", () => {
-      console.log("F5 is pressed: Shortcut Disabled");
-  });
+  globalShortcut.register("CommandOrControl+R");
+  globalShortcut.register("CommandOrControl+Shift+R");
+  globalShortcut.register("F5");
 });
 
 

@@ -7,9 +7,7 @@
                 <div class="row">
                     <div class="col-9">
                          <div class="hours">
-                               <span class="hours">{{ hours }} hrs </span>
-                                 <span class="minutes">{{ showTime(minutes) }} m </span>
-                                 <span class="seconds">{{ showTime(seconds) }} s</span>
+                               <span class="hours">{{ showTime(hours) }}:{{ showTime(minutes) }}:{{ showTime(seconds) }} </span>
                          </div>
                      <h4 class="">Current Session</h4>
                     </div>
@@ -222,9 +220,12 @@ export default {
     startTimer() {
       if (!this.trackingOn) {
         this.startSession = new Date();
-        this.$store.dispatch('timer/startActivity')
-        this.timeInterval = setInterval(this.timer, 1000);
-        this.trackingOn = true;
+        this.$store.dispatch('timer/startActivity').then(()=>{
+            this.timeInterval = setInterval(this.timer, 1000);
+            this.trackingOn = true;
+            this.fullscreenScreenshot()
+        })
+       
         return;
       }
       this.endSession = new Date();

@@ -62,5 +62,13 @@ startActivity(data){
               ...data
           }
       })
+  },
+  getLatestScreenCapture(data){
+    return apolloProvider.query({
+      query:queries.LATEST_SCREEN_CAPTURE,
+      variables:{
+        ...data
+      }
+    })
   }
 }
