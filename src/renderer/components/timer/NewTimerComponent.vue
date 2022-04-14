@@ -223,7 +223,7 @@ export default {
         this.$store.dispatch('timer/startActivity').then(()=>{
             this.timeInterval = setInterval(this.timer, 1000);
             this.trackingOn = true;
-            this.fullscreenScreenshot()
+            setTimeout(()=>{if(this.trackingOn)this.fullscreenScreenshot()},5000)
         })
        
         return;
