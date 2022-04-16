@@ -2,6 +2,7 @@ import {formatDate,fancyTimeFormat} from '../../const/timer'
 import useApollo from '../../graphql/useApollo'
 const activeWindow = require('active-win');
 const moment = require('moment')
+import localStore from '../../utils/localStore'
 // const ioHook = window.require('iohook');
 // const gkm = require('gkm');
      
@@ -128,7 +129,6 @@ export default{
                 );
             }
 
-            if(state.online){
                 const currentTime = moment()
 
                 let convertedImages = []
@@ -136,27 +136,18 @@ export default{
                      urltoFile(image,'screenshot'+index,'image/png').then(file=>{
                         convertedImages.push(file)
                         if(index == images.length-1){
-                             useApollo.activity.postScreencastActivity({activityUid:localStorage.getItem('activityUid'),startTime:formatDate(currentTime),endTime:formatDate(currentTime),images:convertedImages,keyClicks:parseInt(localStorage.getItem('keyboardEvent')),mouseMoves:parseInt(localStorage.getItem('mouseEvent'))}).then(()=>{
-                                localStorage.setItem('keyboardEvent',1)
-                                localStorage.setItem('mouseEvent',1)
+                            const data = {activityUid:localStorage.getItem('activityUid'),startTime:formatDate(currentTime),endTime:formatDate(currentTime),images:convertedImages,keyClicks:parseInt(localStorage.getItem('keyboardEvent')),mouseMoves:parseInt(localStorage.getItem('mouseEvent'))}
+                             useApollo.activity.postScreencastActivity(data).then(()=>{
                                 if(state.trackingOn){
-                                    localStorage.setItem('screenKeyboardEvent',1)
-                                    localStorage.setItem('screenMouseEvent',1)
+                                  localStore.screenCast()
                                 }
-                            })  
+                            }).catch(()=>{
+                                localStore.offlineScreenCast(data)
+                            })
                         }
 
                     })
                 })
-                       
-            }else{
-                // var base64Data = image.replace(/^data:image\/png;base64,/, "");
-                // localStorage.setItem('screenshots'+Date.now(), base64Data);
-            //     fs.writeFile('screenshots/'+Date.now()+".png", base64Data, 'base64', function(err) {
-                  console.log('offline');
-            // })
-
-          }
           dispatch('setLatestCaptured',images[0])
           
         },
@@ -171,18 +162,12 @@ export default{
                 commit('SET_SCREENSHOT_TIME',rand)
         },
 
-       async startActivity({commit,dispatch,state}){
+       async startActivity({state}){
             useApollo.activity.startActivity({projectUid:state.projectUid}).then(res=>{
-                localStorage.removeItem('appAndWebsiteUsed')
-                dispatch('touchActivity')
-                dispatch('checkAppsAndWebsites')
-                localStorage.setItem('activityUid',res.data.startActivity.uuid)
-                localStorage.setItem('keyboardEvent',1)
-                localStorage.setItem('mouseEvent',1)
-                localStorage.setItem('screenKeyboardEvent',1)
-                localStorage.setItem('screenMouseEvent',1)
-                commit('SET_ACTIVITY_IDLE_TIME',0);
-                commit('SET_LAST_INACTIVITY',0);
+                localStore.startActivity(res.data.startActivity.uuid)
+              
+            }).catch(()=>{
+                localStore.offlineStartActivity()
             })
         },
         async endActivity({dispatch,state}){
@@ -191,19 +176,14 @@ export default{
             localStorage.removeItem('appAndWebsiteUsed')
             if(state.touchActivityInterval) 
                 clearInterval(state.touchActivityInterval)
-            useApollo.activity.endActivity({projectUid:state.projectUid,activityUid:localStorage.getItem('activityUid')}).then(async ()=>{
-                localStorage.removeItem('activityUid')
-                localStorage.removeItem('keyboardEvent')
-                localStorage.removeItem('mouseEvent')
-                localStorage.removeItem('screenKeyboardEvent')  
-                localStorage.removeItem('screenMouseEvent')
-                localStorage.removeItem('appAndWebsiteUsed')
+            useApollo.activity.endActivity({projectUid:state.projectUid,activityUid:localStorage.getItem('activityUid')}).then(()=>{
                 dispatch('getTotalTodayTime')
                 dispatch('getTotalWeeksTime')
                 if(state.checkAppsAndWebsitesInterval) clearInterval(state.checkAppsAndWebsitesInterval)
                 if(state.touchActivityInterval) clearInterval(state.touchActivityInterval)
-            }).catch((error)=>{
-                console.log(error)
+                localStore.endActivity()
+            }).catch(()=>{
+               localStore.offlineEndActivity()
             })
         },
         getTotalTodayTime({commit,state}){
@@ -312,17 +292,19 @@ export default{
         },
         setAppTime({commit},data){            
             useApollo.activity.setAppActivity(data).then(()=>{
-                localStorage.setItem('keyboardEvent',1)
-                localStorage.setItem('mouseEvent',1)
+              localStore.appActivity()
 
+            }).catch(()=>{
+                localStore.offlineAppActivity(data)
             })
             commit('SET_APPLICATION',data)
 
         },
         setWebTime({commit},data){
             useApollo.activity.setWebActivity(data).then(()=>{
-                localStorage.setItem('keyboardEvent',1)
-                localStorage.setItem('mouseEvent',1)
+              localStore.appActivity()
+            }).catch(()=>{
+                localStore.offlineWebActivity(data)
             })
             commit('SET_WEBSITE',data)
         },
@@ -365,10 +347,10 @@ export default{
 
         touchActivity({commit,state}){
             const interval = setInterval(()=>{
-
+                if(state.trackingOn){
                 useApollo.activity.touchActivity({projectUid:state.projectUid,activityUid:localStorage.getItem('activityUid')}).then(()=>{
-                    
                 })
+              }
             },60000)
             commit('SET_TOUCH_ACTIVITY_INTERVAL',interval)
         },
