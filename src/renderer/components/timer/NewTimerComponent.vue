@@ -45,7 +45,7 @@
 import ScreenCapturedImage from '../common/ScreenCapturedImage.vue'
 import IdleModal from '../common/IdleModal.vue'
 const electron = window.require("electron");
-const { desktopCapturer } = electron; //ipcRenderer also needed to listen event
+const { desktopCapturer } = electron;
 import { powerMonitor, Notification } from "@electron/remote";
 
 export default {

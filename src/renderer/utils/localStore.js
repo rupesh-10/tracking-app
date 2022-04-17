@@ -45,6 +45,10 @@ export default {
         if(foundActivity)foundActivity.ended_at = moment()
         localStorage.setItem('offlineActivity',JSON.stringify(offlineActivity))
         } 
+        else{
+            const onlineActivity =  {activityUid:currentActivity,ended_at:moment()}
+            localStorage.setItem('onlineActivity',JSON.stringify([onlineActivity]))
+        }
     },
 
     screenCast(){

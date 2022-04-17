@@ -11,13 +11,16 @@
                 </div>
                 <div class="row pt-2">
                     <div class="col-md-12">
-                        <h4 class="mt-1 ml-1"><a href="#" style="text-decoration:none;">View Work Diary</a></h4>
+                        <h4 class="mt-1 ml-1"><a href="#" style="text-decoration:none;" @click="openWorkDiary">View Work Diary</a></h4>
                     </div>
                 </div>
             </div>
         </div>
 </template>
 <script>
+const electron = window.require("electron");
+const { shell } = electron; 
+
 export default {
   props: {
     image: {
@@ -25,5 +28,11 @@ export default {
      default:'',
     },
   },
+  methods:{
+      openWorkDiary(){
+          const url = window.process.env.WORK_DIARY_URL
+          shell.openExternal(url);
+      }
+  }
 };
 </script>
