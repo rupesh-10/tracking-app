@@ -233,10 +233,22 @@ export default{
             }
             const storageApplication=localStorage.getItem('appAndWebsiteUsed')
             var lastApplicationInfo=null;
-            if(storageApplication)
-            lastApplicationInfo=JSON.parse(storageApplication)
-            const urlChanged=(lastApplicationInfo && lastApplicationInfo.url && lastApplicationInfo.url==source.url)
-            if(forcePost || urlChanged || (lastApplicationInfo && lastApplicationInfo.id!=source.id)){
+            var urlChanged=null;
+            if(storageApplication){
+                lastApplicationInfo=JSON.parse(storageApplication)
+                var sourceUrl=source.url;
+                if(sourceUrl!=null){
+                    const urlObject =url.parse(sourceUrl);
+                    sourceUrl=urlObject.host
+                }
+                if(sourceUrl!=null){
+                    if(sourceUrl!=lastApplicationInfo.url)
+                        urlChanged=true;
+                }
+            }
+
+
+            if(forcePost || urlChanged ||  (lastApplicationInfo && lastApplicationInfo.id!=source.id)){
                 if(lastApplicationInfo==null)
                     return;
                 const activeDuration=(moment().unix() - moment(lastApplicationInfo.start_time).unix())
