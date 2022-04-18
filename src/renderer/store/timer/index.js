@@ -219,8 +219,11 @@ export default{
             commit('UPDATE_CHECK_APPS_AND_WEBSITES_INTERVAL',interval) 
         },
         async dispatchAppAndWebsiteUsed({commit,dispatch,state},forcePost=null){
-            const source = await activeWindow()
+            let source = await activeWindow()
             const systemIdleTime=powerMonitor.getSystemIdleTime();
+            if(!source){
+                source = {name:'desktop',id:-1}
+            }
             if(systemIdleTime>state.lastInactivity){
 
                 commit("SET_ACTIVITY_IDLE_TIME",state.activityIdleTime+systemIdleTime-state.lastInactivity)
@@ -238,7 +241,7 @@ export default{
                     return;
                 const activeDuration=(moment().unix() - moment(lastApplicationInfo.start_time).unix())
 
-                if(activeDuration>15){
+                if(activeDuration>5){
                     if(lastApplicationInfo.url){
                         dispatch('setWebTime',{
                                 activityUid:localStorage.getItem('activityUid'),

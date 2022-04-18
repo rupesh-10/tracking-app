@@ -79,7 +79,7 @@
   "appId": "tracking-app",
   "iohook": {
     "targets": [
-      "node-93",
+      "node-83",
       "electron-87"
     ],
     "platforms": [
