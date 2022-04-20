@@ -1,12 +1,10 @@
 'use strict'
 
-import { app, protocol, BrowserWindow,ipcMain,screen,globalShortcut } from 'electron'
+import { app, protocol, BrowserWindow,globalShortcut } from 'electron'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 const isDevelopment = process.env.NODE_ENV !== 'production'
 let win;
-let screenCaptureWindow;
-let image;
 require('@electron/remote/main').initialize()
 
 app.allowRendererProcessReuse = false
@@ -25,20 +23,14 @@ async function createWindow() {
     resizable:true,
     autoHideMenuBar: true,
     webPreferences: {
-      
-      // Use pluginOptions.nodeIntegration, leave this alone
-      // See nklayman.github.io/vue-cli-plugin-electron-builder/guide/security.html#node-integration for more info
       nodeIntegration: true,
       contextIsolation: false,
       enableRemoteModule: true,
-      // preload: path.join(app.getAppPath(), 'preload.js')
       devTools: true,
-      // contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION,
     }
   })
 
   if (process.env.WEBPACK_DEV_SERVER_URL) {
-    // Load the url of the dev server if in development mode
     await win.loadURL(process.env.WEBPACK_DEV_SERVER_URL)
     if (!process.env.IS_TEST) win.webContents.openDevTools()
   } else {
@@ -62,35 +54,6 @@ async function createWindow() {
   
 
 }
-
-async function createScreenCaptureWindow(){
-  const {width,height} = screen.getPrimaryDisplay().workAreaSize;
-  screenCaptureWindow = new BrowserWindow({
-    width: 350,
-    height: 280,
-    resizable:isDevelopment,
-    x: width - 380,
-    y: height - 260,
-    movable:false,
-    minimizable:false,
-    maximizable:false,
-    skipTaskbar:true,
-    webPreferences:{
-      nodeIntegration: false,
-      contextIsolation: false,
-      enableRemoteModule: true,
-    }
-  })
-  screen.on('display-metrics-changed', (event, display) =>
-  {
-    const {x, y, width, height} = display.workArea;
-    console.log(x,y)
-    screenCaptureWindow.setBounds({x: width - 500, y: height - 450, width: 500, height: 500})
-  });
-  await screenCaptureWindow.loadURL("data:text/html,<span> ScreenCaptured: </span> <br> <img style='margin-top:2px; border-radius:10px;' src="+ image +" width='100%' height='100%'>")
-}
-
-
 
 
 // Quit when all windows are closed.
@@ -126,15 +89,6 @@ app.on('ready', async () => {
   }
   createWindow()
 })
-
-
-// Notification
-
-ipcMain.on('notify-screencaptured', (event,img) => {
-  image = img
-  screenCaptureWindow  = createScreenCaptureWindow()
-  setTimeout(()=>{ BrowserWindow.getAllWindows()[0].close()  },5000)
-});
 
 
 // Exit cleanly on request from parent process in development mode.
