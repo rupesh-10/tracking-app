@@ -195,7 +195,7 @@ export default {
       if (value > 300 && this.trackingOn) {
         this.isWorking = false;
        this.toggleWorkingModal = true
-        setTimeout(this.idle, 10000);
+        setTimeout(this.idle, 60000);
       }
     },
     online(value){
