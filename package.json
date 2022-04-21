@@ -5,7 +5,6 @@
   "description": "This is the workplace app.",
   "author": "GEC",
   "private": true,
-  "asar": false,
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
@@ -79,7 +78,7 @@
   "appId": "tracking-app",
   "iohook": {
     "targets": [
-      "node-83",
+      "node-93",
       "electron-87"
     ],
     "platforms": [

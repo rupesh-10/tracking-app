@@ -110,10 +110,10 @@ if (isDevelopment) {
 // Prevent Reloading
 if(!isDevelopment){
 app.on('browser-window-focus', function () {
-  globalShortcut.register("CommandOrControl+R");
-  globalShortcut.register("CommandOrControl+Shift+R");
-  globalShortcut.register("F5");
-});
+  globalShortcut.register("CommandOrControl+R",()=>{});
+  globalShortcut.register("CommandOrControl+Shift+R",()=>{});
+  globalShortcut.register("F5",()=>{});
+}); 
 
 
 app.on('browser-window-blur', function () {

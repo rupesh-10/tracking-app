@@ -221,6 +221,7 @@ export default{
         async dispatchAppAndWebsiteUsed({commit,dispatch,state},forcePost=null){
             let source = await activeWindow()
             const systemIdleTime=powerMonitor.getSystemIdleTime();
+            console.log(systemIdleTime)
             if(!source){
                 source = {name:'desktop',id:-1}
             }
@@ -255,6 +256,7 @@ export default{
 
                 if(activeDuration>5){
                     if(lastApplicationInfo.url){
+                        
                         dispatch('setWebTime',{
                                 activityUid:localStorage.getItem('activityUid'),
                                 name:lastApplicationInfo.name,  
