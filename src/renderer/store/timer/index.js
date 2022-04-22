@@ -221,13 +221,14 @@ export default{
         async dispatchAppAndWebsiteUsed({commit,dispatch,state},forcePost=null){
             let source = await activeWindow()
             const systemIdleTime=powerMonitor.getSystemIdleTime();
-            console.log(systemIdleTime)
+            // console.log(systemIdleTime)
             if(!source){
                 source = {name:'desktop',id:-1}
             }
             if(systemIdleTime>state.lastInactivity){
 
                 commit("SET_ACTIVITY_IDLE_TIME",state.activityIdleTime+systemIdleTime-state.lastInactivity)
+                console.log(state.activityIdleTime,systemIdleTime,state.lastInactivity)
                 commit("SET_LAST_INACTIVITY",systemIdleTime)
             } else{
                 commit("SET_LAST_INACTIVITY",0)

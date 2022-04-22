@@ -52,6 +52,7 @@ async function createWindow() {
     //     }
     // });
   
+    win.webContents.setBackgroundThrottling(false);
 
 }
 
