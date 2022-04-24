@@ -46,7 +46,7 @@
     "@vue/cli-plugin-router": "^4.5.15",
     "@vue/cli-service": "~4.5.0",
     "babel-eslint": "^10.1.0",
-    "electron": "^12.2.3",
+    "electron": "^11.5.0",
     "electron-devtools-installer": "^3.1.0",
     "electron-packager": "^15.4.0",
     "eslint": "^6.7.2",
@@ -78,8 +78,8 @@
   "appId": "tracking-app",
   "iohook": {
     "targets": [
-      "node-93",
-      "electron-87"
+      "node- 93",
+      "electron-85"
     ],
     "platforms": [
       "win32",

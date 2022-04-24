@@ -260,7 +260,7 @@ export default{
                         
                         dispatch('setWebTime',{
                                 activityUid:localStorage.getItem('activityUid'),
-                                name:lastApplicationInfo.name,  
+                                name:lastApplicationInfo.name,   
                                 startTime:formatDate(lastApplicationInfo.start_time),
                                 endTime:formatDate(moment()),
                                 url:lastApplicationInfo.url,
@@ -367,6 +367,7 @@ export default{
             const interval = setInterval(()=>{
                 if(state.trackingOn){
                 useApollo.activity.touchActivity({projectUid:state.projectUid,activityUid:localStorage.getItem('activityUid')}).then(()=>{
+                    localStore.checkOfflineActivity()
                 })
               }
             },60000)

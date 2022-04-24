@@ -70,6 +70,10 @@ export default {
                    foundActivity.screenCasts = [data]
                }
            }
+           else{
+               const onlineStartedOfflineActivity = {activityUid:currentActivity,screenCasts:[data]}
+               localStorage.setItem('offlineActiviyt',JSON.stringify(onlineStartedOfflineActivity))
+           }
             localStorage.setItem('offlineActivity',JSON.stringify(offlineActivity))
             this.screenCast()
         } 
@@ -116,5 +120,18 @@ export default {
             localStorage.setItem('offlineActivity',JSON.stringify(offlineActivity))
             this.screenCast()
         } 
+    },
+
+
+    checkOfflineActivity(){
+        const offlineActivity = JSON.parse(localStorage.getItem('offlineActivity'))
+        if(offlineActivity){
+            offlineActivity.forEach((activity)=>{
+                if(activity.ended_at){
+                    console.log(activity)
+                }
+            })
+         }
     }
+
 }

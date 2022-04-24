@@ -199,10 +199,10 @@ export default {
       }
     },
     online(value){
-        if (!value) {
+        if (!value && this.trackingOn) {
         this.sendNotification({
           title: "Connection Lost",
-          body: "We couldn't find network, Please check your internet connection",
+          body: "We couldn't find network, But still we are tracking your time",
         });
       }
     }
