@@ -172,15 +172,19 @@ export default{
         },
         async endActivity({dispatch,state}){
             if(state.checkAppsAndWebsitesInterval) 
+            {
                 clearInterval(state.checkAppsAndWebsitesInterval)
+            }
             localStorage.removeItem('appAndWebsiteUsed')
             if(state.touchActivityInterval) 
+            {
                 clearInterval(state.touchActivityInterval)
+            }
             useApollo.activity.endActivity({projectUid:state.projectUid,activityUid:localStorage.getItem('activityUid')}).then(()=>{
                 dispatch('getTotalTodayTime')
                 dispatch('getTotalWeeksTime')
-                if(state.checkAppsAndWebsitesInterval) clearInterval(state.checkAppsAndWebsitesInterval)
-                if(state.touchActivityInterval) clearInterval(state.touchActivityInterval)
+                if(state.checkAppsAndWebsitesInterval) {clearInterval(state.checkAppsAndWebsitesInterval)}
+                if(state.touchActivityInterval) {clearInterval(state.touchActivityInterval)}
                 localStore.endActivity()
             }).catch(()=>{
                localStore.offlineEndActivity()
@@ -221,7 +225,7 @@ export default{
         async dispatchAppAndWebsiteUsed({commit,dispatch,state},forcePost=null){
             let source = await activeWindow()
             const systemIdleTime=powerMonitor.getSystemIdleTime();
-            // console.log(systemIdleTime)
+
             if(!source){
                 source = {name:'desktop',id:-1}
             }

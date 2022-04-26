@@ -48,6 +48,7 @@ const electron = window.require("electron");
 const { desktopCapturer } = electron;
 import { powerMonitor, Notification } from "@electron/remote";
 
+
 export default {
   components: {
     IdleModal,
@@ -62,6 +63,7 @@ export default {
       allDays: ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],
       todayDate: new Date(),
       toggleWorkingModal:false,
+      inactiveTime:120,
       
     };
   },
@@ -192,7 +194,13 @@ export default {
       this.timer();
     },
     idleTime(value) {
-      if (value > 300 && this.trackingOn) {
+      if(value==this.inactiveTime){
+         this.sendNotification({
+          title: "Inactive User",
+          body: "Sorry, We couldn't find your activity. Are you still working ?",
+        });
+      }
+      if (value > this.inactiveTime && this.trackingOn) {
         this.isWorking = false;
        this.toggleWorkingModal = true
         setTimeout(this.idle, 60000);

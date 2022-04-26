@@ -8,7 +8,6 @@ let win;
 require('@electron/remote/main').initialize()
 
 
-
 app.allowRendererProcessReuse = false
 
 // Scheme must be registered before the app is ready

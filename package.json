@@ -31,6 +31,7 @@
     "gkm": "^0.2.0",
     "iohook": "^0.9.3",
     "iohook-prebuild-test": "^0.1.16",
+    "logrocket": "^2.2.1",
     "node-notifier": "^10.0.0",
     "sass": "^1.49.9",
     "sass-loader": "^10.2.1",

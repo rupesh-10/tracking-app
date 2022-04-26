@@ -9,6 +9,8 @@ import "vue-toastification/dist/index.css";
 
 Vue.use(Toast);
 
+import LogRocket from 'logrocket';
+LogRocket.init('fcdf2l/workplace');
 
 
 import 'bootstrap/dist/css/bootstrap.css'
