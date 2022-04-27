@@ -36,6 +36,7 @@ export default {
         localStorage.removeItem('screenKeyboardEvent')  
         localStorage.removeItem('screenMouseEvent')
         localStorage.removeItem('appAndWebsiteUsed')
+        localStorage.removeItem('startTimeForCapture')
     },
     offlineEndActivity(){
         const offlineActivity = JSON.parse(localStorage.getItem('offlineActivity'))
@@ -72,7 +73,7 @@ export default {
            }
            else{
                const onlineStartedOfflineActivity = {activityUid:currentActivity,screenCasts:[data]}
-               localStorage.setItem('offlineActiviyt',JSON.stringify(onlineStartedOfflineActivity))
+               localStorage.setItem('offlineActivity',JSON.stringify(onlineStartedOfflineActivity))
            }
             localStorage.setItem('offlineActivity',JSON.stringify(offlineActivity))
             this.screenCast()

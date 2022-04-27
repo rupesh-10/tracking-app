@@ -136,13 +136,19 @@ export default{
                      urltoFile(image,'screenshot'+index,'image/png').then(file=>{
                         convertedImages.push(file)
                         if(index == images.length-1){
-                            const data = {activityUid:localStorage.getItem('activityUid'),startTime:formatDate(currentTime),endTime:formatDate(currentTime),images:convertedImages,keyClicks:parseInt(localStorage.getItem('keyboardEvent')),mouseMoves:parseInt(localStorage.getItem('mouseEvent'))}
+                            let startTime = localStorage.getItem('startTimeForCapture')
+                            if(!startTime){
+                                startTime = formatDate(currentTime)
+                            }
+                            const data = {activityUid:localStorage.getItem('activityUid'),startTime,endTime:formatDate(currentTime),images:convertedImages,keyClicks:parseInt(localStorage.getItem('keyboardEvent')),mouseMoves:parseInt(localStorage.getItem('mouseEvent'))}
                              useApollo.activity.postScreencastActivity(data).then(()=>{
                                 if(state.trackingOn){
                                   localStore.screenCast()
                                 }
                             }).catch(()=>{
                                 localStore.offlineScreenCast(data)
+                            }).finally(()=>{
+                                localStorage.setItem('startTimeForCapture',formatDate(currentTime))
                             })
                         }
 
@@ -232,7 +238,6 @@ export default{
             if(systemIdleTime>state.lastInactivity){
 
                 commit("SET_ACTIVITY_IDLE_TIME",state.activityIdleTime+systemIdleTime-state.lastInactivity)
-                console.log(state.activityIdleTime,systemIdleTime,state.lastInactivity)
                 commit("SET_LAST_INACTIVITY",systemIdleTime)
             } else{
                 commit("SET_LAST_INACTIVITY",0)

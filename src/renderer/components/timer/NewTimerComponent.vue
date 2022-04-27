@@ -194,7 +194,7 @@ export default {
       this.timer();
     },
     idleTime(value) {
-      if(value==this.inactiveTime){
+      if(value==this.inactiveTime && this.trackingOn){
          this.sendNotification({
           title: "Inactive User",
           body: "Sorry, We couldn't find your activity. Are you still working ?",
