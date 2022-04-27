@@ -5,6 +5,7 @@
   "description": "This is the workplace app.",
   "author": "GEC",
   "private": true,
+  "asar": true,
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
