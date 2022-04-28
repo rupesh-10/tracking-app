@@ -233,7 +233,7 @@ export default{
             const systemIdleTime=powerMonitor.getSystemIdleTime();
 
             if(!source){
-                source = {name:'desktop',id:-1}
+                source = { owner: {name:'desktop'},id:-1}
             }
             if(systemIdleTime>state.lastInactivity){
 
@@ -361,14 +361,19 @@ export default{
             if(latestCapturedImage){
               const filteredLatestCapturedImage = latestCapturedImage.find(capture=>capture.project == state.projectUid )
               if(filteredLatestCapturedImage){
-                commit('SET_SCREENSHOT',filteredLatestCapturedImage.image)
+                
+                commit('SET_SCREENSHOT',filteredLatestCapturedImage)
               }
               else commit('SET_SCREENSHOT',require('../../assets/images/no-image.jpg')) 
             }
 
             useApollo.activity.getLatestScreenCapture({projectUid:state.projectUid}).then(res=>{
                 const screenCapture = res.data?.me?.activityRecords?.data[0]?.record?.title
-                if(screenCapture) commit('SET_SCREENSHOT',screenCapture)
+                if(screenCapture) {
+                    const images=screenCapture.split(",");
+                    const image=images.reverse()[0];
+                    commit('SET_SCREENSHOT',image)
+                }
             })
         },
 
