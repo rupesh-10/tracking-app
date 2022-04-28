@@ -63,7 +63,7 @@ export default {
       allDays: ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],
       todayDate: new Date(),
       toggleWorkingModal:false,
-      inactiveTime:120,
+      inactiveTime:900,
       
     };
   },
