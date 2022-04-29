@@ -240,8 +240,7 @@ export default{
                 source = { owner: {name:'desktop'},id:-1}
             }
             if(systemIdleTime>state.lastInactivity){
-
-                commit("SET_ACTIVITY_IDLE_TIME",state.activityIdleTime+systemIdleTime-state.lastInactivity)
+                commit("SET_ACTIVITY_IDLE_TIME",Number (state.activityIdleTime)+Number (systemIdleTime) - Number (state.lastInactivity))
                 commit("SET_LAST_INACTIVITY",systemIdleTime)
             } else{
                 commit("SET_LAST_INACTIVITY",0)
@@ -268,7 +267,7 @@ export default{
                     return;
                 const activeDuration=(moment().unix() - moment(lastApplicationInfo.start_time).unix())
 
-                if(activeDuration>5){
+                if(activeDuration>2){
                     if(lastApplicationInfo.url){
                         
                         dispatch('setWebTime',{
@@ -428,3 +427,4 @@ export default{
         }
     }
 }
+
