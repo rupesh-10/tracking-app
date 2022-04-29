@@ -3,12 +3,16 @@ import store from '../store'
 export default {
     
      startActivity(uuid){
+        localStorage.removeItem('activityUid')
         localStorage.removeItem('appAndWebsiteUsed')
+        localStorage.removeItem('startTimeForCapture')
+
         localStorage.setItem('activityUid',uuid)
         localStorage.setItem('keyboardEvent',1)
         localStorage.setItem('mouseEvent',1)
         localStorage.setItem('screenKeyboardEvent',1)
         localStorage.setItem('screenMouseEvent',1)
+        
         store.dispatch('timer/touchActivity')
         console.log(store)
         store.dispatch('timer/checkAppsAndWebsites')

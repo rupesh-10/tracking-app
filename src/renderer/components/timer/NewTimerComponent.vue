@@ -39,11 +39,13 @@
             <!-- ScreenShot -->
        <screen-captured-image :image="image"></screen-captured-image>
        <idle-modal @stillWorking="stillWorking" @notWorking="notWorking" :toggle="toggleWorkingModal"></idle-modal>
+       <timer-info-modal :toggle="showTimerOffModal" @ok="()=>{showTimerOffModal = false}"></timer-info-modal>
     </div>
  </template>
 <script>
 import ScreenCapturedImage from '../common/ScreenCapturedImage.vue'
 import IdleModal from '../common/IdleModal.vue'
+import TimerInfoModal from '../common/TimerInfoModal.vue'
 const electron = window.require("electron");
 const { desktopCapturer } = electron;
 import { powerMonitor, Notification } from "@electron/remote";
@@ -52,7 +54,8 @@ import { powerMonitor, Notification } from "@electron/remote";
 export default {
   components: {
     IdleModal,
-    ScreenCapturedImage
+    ScreenCapturedImage,
+    TimerInfoModal
   },
   data() {
     return {
@@ -64,6 +67,7 @@ export default {
       todayDate: new Date(),
       toggleWorkingModal:false,
       inactiveTime:900,
+      showTimerOffModal:false,
       
     };
   },
@@ -202,7 +206,7 @@ export default {
       }
       if (value > this.inactiveTime && this.trackingOn) {
         this.isWorking = false;
-       this.toggleWorkingModal = true
+         this.toggleWorkingModal = true
         setTimeout(this.idle, 60000);
       }
     },
@@ -320,6 +324,7 @@ export default {
           body: "We couldn't track your activity so, turned off the timer.",
           timeoutType: "never",
         });
+        this.showTimerOffModal = true
       }
     },
     notifyScreenCapture() {
@@ -347,8 +352,23 @@ export default {
         window.addEventListener("offline", this.updateOnlineStatus);
         this.updateOnlineStatus();
         powerMonitor.on("suspend", () => {
-          this.updateTime();
+           this.startTimer();
+          this.showTimerOffModal = true
         });
+        powerMonitor.on("lock-screen", () => {
+           this.startTimer();
+       });
+
+        powerMonitor.on("unlock-screen", () => {
+           this.startTimer();
+       });
+
+        powerMonitor.on("resume", () => {
+           this.startTimer();
+       });
+
+
+
         this.getIdleTime();
         this.$store.dispatch('timer/generateRandomScreenshotTime')
         if(this.online){
