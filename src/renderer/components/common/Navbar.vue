@@ -5,13 +5,13 @@
             <template #button-content>
                 <img src="../../assets/images/avatar.png" alt="image jeremy">
             </template>
-            <b-dropdown-item href="#">Settings</b-dropdown-item>
-            <b-dropdown-item href="#">About</b-dropdown-item>
+            <!-- <b-dropdown-item href="#">Settings</b-dropdown-item>
+            <b-dropdown-item href="#">About</b-dropdown-item> -->
             <b-dropdown-item @click="logout" href="#">Logout</b-dropdown-item>
         </b-dropdown>
         <div class="report">
             <div class="name">{{ userData.name }}</div>
-            <h4>Vue Developer</h4>
+            <h4>Developer</h4>
         </div>
     </div>
 
