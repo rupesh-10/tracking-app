@@ -21,13 +21,13 @@ async function createWindow() {
     width: 368,
     height: 630,
     maximizable:false,
-    resizable:true,
+    resizable:isDevelopment,
     autoHideMenuBar: true,
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
       enableRemoteModule: true,
-      devTools: true,
+      devTools: isDevelopment,
     }
   })
 

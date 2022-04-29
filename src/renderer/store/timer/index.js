@@ -38,6 +38,7 @@ export default{
         app_website:null,
         project:JSON.parse(localStorage.getItem('selectedProject')),
         projectUid:JSON.parse(localStorage.getItem('selectedProject'))?.uuid,
+        timerInterval:false,
     },
     getters:{
 
@@ -118,6 +119,9 @@ export default{
         SET_LAST_INACTIVITY(state,payload){
             state.lastInactivity = payload
         },
+        SET_TIMER_INTERVAL(state,payload){
+            state.timerInterval = payload
+        }
 
     },
     actions:{
@@ -356,17 +360,20 @@ export default{
             }
             commit('SET_SCREENSHOT',image)
         },
-        fetchImage({commit,state}){
+        fetchImage({commit,state,dispatch}){
             const latestCapturedImage = JSON.parse(localStorage.getItem('latestCapturedImage'))
             if(latestCapturedImage){
               const filteredLatestCapturedImage = latestCapturedImage.find(capture=>capture.project == state.projectUid )
               if(filteredLatestCapturedImage){
-                
                 commit('SET_SCREENSHOT',filteredLatestCapturedImage)
               }
               else commit('SET_SCREENSHOT',require('../../assets/images/no-image.jpg')) 
             }
 
+           dispatch("fetchLatestCapture")
+        },
+
+        fetchLatestCapture({state,commit}){
             useApollo.activity.getLatestScreenCapture({projectUid:state.projectUid}).then(res=>{
                 const screenCapture = res.data?.me?.activityRecords?.data[0]?.record?.title
                 if(screenCapture) {

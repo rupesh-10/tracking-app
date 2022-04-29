@@ -48,6 +48,10 @@ touchActivity:gql`
 mutation TouchActivity($projectUid:String!,$activityUid:String!){
   touchActivity(projectUid:$projectUid,activityUid:$activityUid){
     completed
+    startedAt
+    endedAt
+    duration
+    idleDuration
   }
 }
 `

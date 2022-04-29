@@ -29,7 +29,7 @@
                           <b-form-checkbox v-model="checked" name="check-button" switch></b-form-checkbox>
                     </div> -->
                     <div class="col-6 week-description">
-                        <h6 class="title text-right " v-if="weeksTime !=null && weeksTime.hours!=null"> <span :class="weeksTime.hours>limit ? 'text-red' : ''"> {{showTime(weeksTime.hours)}}:{{showTime(weeksTime.minutes)}} </span> of {{limit}} hrs</h6>
+                        <h6 class="title text-right " v-if="weeksTime !=null && weeksTime.hours!=null"> <span> {{showTime(weeksTime.hours)}} hrs {{showTime(weeksTime.minutes)}} m </span></h6>
                         <h4 class="description ">This Week (UTC) </h4>
                     </div>
                 </div>
@@ -188,6 +188,11 @@ export default {
       get(){
         return this.$store.state.timer.project
       }
+    },
+    timerInterval:{
+      get(){
+        return this.$store.state.timer.timerInterval
+      }
     }
   },
   watch: {
@@ -209,6 +214,9 @@ export default {
          this.toggleWorkingModal = true
         setTimeout(this.idle, 60000);
       }
+    },
+    timerInterval(value){
+      if(value && this.timeInterval){clearInterval(this.timeInterval)}
     },
     online(value){
         if (!value && this.trackingOn) {
@@ -275,16 +283,20 @@ export default {
         this.$store.commit('timer/SET_LATEST_CAPTURED',0)
 
         }
+         this.$store.dispatch('timer/getTotalTodayTime')
+         this.$store.dispatch('timer/getTotalWeeksTime')
           this.seconds = 0;
       }
 
       if (this.minutes == 60) {
         this.minutes = 0;
-        if(this.weeksTime.minutes >=60)  this.weeksTime.minutes = 0;
-        if(this.todaysTime.minutes >= 60) this.todaysTime.minutes = 0;
+        if(this.weeksTime.minutes >=60)  {this.weeksTime.minutes = 0;}
+        if(this.todaysTime.minutes >= 60) {this.todaysTime.minutes = 0;}
         this.todaysTime.hours = ++this.todaysTime.hours
         this.weeksTime.hours = ++this.weeksTime.hours
         this.hours = ++this.hours;
+        this.$store.dispatch('timer/getTotalTodayTime')
+        this.$store.dispatch('timer/getTotalWeeksTime')
       }
     },
     updateOnlineStatus() {

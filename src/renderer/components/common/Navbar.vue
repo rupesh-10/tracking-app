@@ -57,7 +57,38 @@ export default{
       navbarHidden(){
         return this.$route.name!=='projects'
       },
-
+       hours: {
+      get() {
+        return this.$store.state.timer?.hours;
+      },
+      set(value) {
+        this.$store.commit("timer/SET_HOURS", value);
+      },
+    },
+    minutes: {
+      get() {
+        return this.$store.state.timer.minutes;
+      },
+      set(value) {
+        this.$store.commit("timer/SET_MINUTES", value);
+      },
+    },
+    seconds: {
+      get() {
+        return this.$store.state.timer.seconds;
+      },
+      set(value) {
+        this.$store.commit("timer/SET_SECONDS", value);
+      },
+    },
+   timerInterval:{
+      get(){
+        return this.$store.state.timer.timerInterval
+      },
+      set(value){
+        this.$store.commit("timer/SET_TIMER_INTERVAL",value)
+      }
+    }
 
  },
  methods: {
@@ -80,6 +111,12 @@ export default{
       this.$router.push({ name: 'login' })
     },
 
+     resetTime(){
+        this.hours = 0
+        this.minutes = 0
+        this.seconds = 0
+    },
+
     openTimerOffModal(){
       if(this.trackingOn){
        this.toggleModal = true
@@ -94,10 +131,15 @@ export default{
     },
 
     modalAnswerYes(){
-      this.$store.dispatch('timer/endActivity')
       this.trackingOn = false
-      if(this.modalFor=='project') this.$router.replace({ name: 'projects' })
-      else if(this.modalFor=='logout') this.logout()
+      this.timerInterval = true
+      this.toggleModal = false
+      this.$store.dispatch('timer/endActivity').then(()=>{
+        if(this.modalFor=='project') this.$router.replace({ name: 'projects' })
+       else if(this.modalFor=='logout') this.logout()
+        this.timerInterval = false
+        this.resetTime()
+      })
       
     }
 
