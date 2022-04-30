@@ -222,11 +222,13 @@ export default{
             })
         },
 
-        checkAppsAndWebsites({commit,dispatch}){
+        checkAppsAndWebsites({commit,dispatch,state}){
 
             const interval = setInterval(
                     async () =>{
-                        dispatch('dispatchAppAndWebsiteUsed');
+                        if(state.trackingOn){
+                            dispatch('dispatchAppAndWebsiteUsed');
+                        }
                     },
                         1000
                     )
