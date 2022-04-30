@@ -239,12 +239,15 @@ export default{
             if(!source){
                 source = { owner: {name:'desktop'},id:-1}
             }
-            if(systemIdleTime>state.lastInactivity){
-                commit("SET_ACTIVITY_IDLE_TIME",Number (state.activityIdleTime)+Number (systemIdleTime) - Number (state.lastInactivity))
-                commit("SET_LAST_INACTIVITY",systemIdleTime)
-            } else{
-                commit("SET_LAST_INACTIVITY",0)
+            if(systemIdleTime){
+                commit("SET_ACTIVITY_IDLE_TIME",state.activityIdleTime+1)
             }
+            // if(systemIdleTime>state.lastInactivity){
+            //     commit("SET_ACTIVITY_IDLE_TIME",Number (state.activityIdleTime)+Number (systemIdleTime) - Number (state.lastInactivity))
+            //     commit("SET_LAST_INACTIVITY",systemIdleTime)
+            // } else{
+            //     commit("SET_LAST_INACTIVITY",0)
+            // }
             const storageApplication=localStorage.getItem('appAndWebsiteUsed')
             var lastApplicationInfo=null;
             var urlChanged=null;
