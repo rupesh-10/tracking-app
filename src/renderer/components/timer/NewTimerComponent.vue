@@ -310,7 +310,7 @@ export default {
             images.push(source.thumbnail.toDataURL())
           })
             this.$store.dispatch("timer/saveScreenshot", images);
-            if(localStorage.getItem('screenCaptureSound')){
+            if(JSON.parse(localStorage.getItem('screenCaptureSound'))){
               this.notifyScreenCapture();
             }
         })

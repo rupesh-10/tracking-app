@@ -8,8 +8,8 @@
             <!-- <b-dropdown-item href="#">Settings</b-dropdown-item>
             <b-dropdown-item href="#">About</b-dropdown-item> -->
             <b-dropdown-item @click="logout" href="#">Logout</b-dropdown-item>
-            <b-dropdown-item>
-              <router-link to="/setting" style="text-decoration:none; color:black;">Setting</router-link>
+            <b-dropdown-item @click="redirectToSetting">
+              Setting
             </b-dropdown-item>
         </b-dropdown>
         <div class="report">
@@ -142,11 +142,22 @@ export default{
         this.$store.dispatch('timer/endActivity').then(()=>{
            if(this.modalFor=='project') this.$router.replace({ name: 'projects' })
             else if(this.modalFor=='logout') this.logout()
-              this.timerInterval = false
-              this.resetTime()
+            else if(this.modalFor=='setting') this.$router.replace({name:'setting'})
+            this.timerInterval = false
+            this.resetTime()
         })
       })
     
+    },
+
+    redirectToSetting(){
+       if(this.trackingOn) {
+        this.toggleModal = true
+        this.modalFor = 'setting'
+      }
+      else{
+        this.$router.replace({name:'setting'})
+      }
     }
 
   },
