@@ -30,6 +30,14 @@ const routes = [
     meta:{
       middleware:[isUserLoggedIn]
     }
+  },
+    {
+    path:'/setting',
+    name:'setting',
+    component:()=>import('../components/common/Setting.vue'),
+    meta:{
+      middleware:[isUserLoggedIn]
+    }
   }
 ]
 

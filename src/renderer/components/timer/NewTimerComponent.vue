@@ -47,7 +47,7 @@ import ScreenCapturedImage from '../common/ScreenCapturedImage.vue'
 import IdleModal from '../common/IdleModal.vue'
 import TimerInfoModal from '../common/TimerInfoModal.vue'
 const electron = window.require("electron");
-const { desktopCapturer } = electron;
+const { desktopCapturer,ipcRenderer } = electron;
 import { powerMonitor, Notification } from "@electron/remote";
 
 
@@ -310,7 +310,9 @@ export default {
             images.push(source.thumbnail.toDataURL())
           })
             this.$store.dispatch("timer/saveScreenshot", images);
-            this.notifyScreenCapture();
+            if(localStorage.getItem('screenCaptureSound')){
+              this.notifyScreenCapture();
+            }
         })
     },
     updateTime() {
@@ -382,8 +384,16 @@ export default {
         }
         this.$store.dispatch('timer/fetchImage')
         this.$store.dispatch('timer/startActivityTracking')
+
+        ipcRenderer.on('timerShortCutPressed', ()=>{
+          if(JSON.parse(localStorage.getItem('shortCutEnabled')) && !this.trackingOn && this.$route.name==='home'){
+            this.startTimer() 
+          }
+        }); 
         
     }
   },
 };
 </script>
+
+

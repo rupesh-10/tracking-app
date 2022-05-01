@@ -90,7 +90,14 @@ app.on('ready', async () => {
     }
   }
   createWindow()
+
+  globalShortcut.register('CommandOrControl+Shift+Alt+S',()=>{
+    win.webContents.send('timerShortCutPressed')
+  })
+
 })
+
+
 
 
 // Exit cleanly on request from parent process in development mode.
@@ -117,6 +124,8 @@ app.on('browser-window-focus', function () {
   globalShortcut.register("F5",()=>{});
 }); 
 
+
+ 
 
 app.on('browser-window-blur', function () {
   globalShortcut.unregister('CommandOrControl+R');

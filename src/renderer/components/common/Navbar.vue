@@ -8,6 +8,9 @@
             <!-- <b-dropdown-item href="#">Settings</b-dropdown-item>
             <b-dropdown-item href="#">About</b-dropdown-item> -->
             <b-dropdown-item @click="logout" href="#">Logout</b-dropdown-item>
+            <b-dropdown-item>
+              <router-link to="/setting" style="text-decoration:none; color:black;">Setting</router-link>
+            </b-dropdown-item>
         </b-dropdown>
         <div class="report">
             <div class="name">{{ userData.name }}</div>
