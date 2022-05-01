@@ -12,12 +12,11 @@ export default {
         localStorage.setItem('mouseEvent',1)
         localStorage.setItem('screenKeyboardEvent',1)
         localStorage.setItem('screenMouseEvent',1)
-        
+    
         store.dispatch('timer/touchActivity')
-        console.log(store)
-        store.dispatch('timer/checkAppsAndWebsites')
         store.commit('timer/SET_ACTIVITY_IDLE_TIME',0);
         store.commit('timer/SET_LAST_INACTIVITY',0);
+        store.dispatch('timer/checkAppsAndWebsites')
 
     },
     offlineStartActivity(){

@@ -249,13 +249,13 @@ export default {
         return;
       }
       this.endSession = new Date();
+      this.trackingOn = false;
       clearInterval(this.timeInterval);
       this.$store.dispatch('timer/dispatchAppAndWebsiteUsed',true).then(()=>{
         this.$store.dispatch('timer/endActivity').then(()=>{
           this.resetTime()
         })
       })
-      this.trackingOn = false;
       
     },
 
@@ -310,6 +310,7 @@ export default {
             images.push(source.thumbnail.toDataURL())
           })
             this.$store.dispatch("timer/saveScreenshot", images);
+            this.notifyScreenCapture();
         })
     },
     updateTime() {
@@ -318,7 +319,7 @@ export default {
       }
     },
     notWorking() {
-      this.startTimer();
+      this.updateTime();
       this.toggleWorkingModal = false
     },
 
@@ -364,22 +365,15 @@ export default {
         window.addEventListener("offline", this.updateOnlineStatus);
         this.updateOnlineStatus();
         powerMonitor.on("suspend", () => {
-           this.startTimer();
-          this.showTimerOffModal = true
+          if(this.trackingOn){
+             this.startTimer();
+             this.showTimerOffModal = true
+          }
+  
         });
         powerMonitor.on("lock-screen", () => {
-           this.startTimer();
+          this.updateTime();
        });
-
-        powerMonitor.on("unlock-screen", () => {
-           this.startTimer();
-       });
-
-        powerMonitor.on("resume", () => {
-           this.startTimer();
-       });
-
-
 
         this.getIdleTime();
         this.$store.dispatch('timer/generateRandomScreenshotTime')

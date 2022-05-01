@@ -108,6 +108,7 @@ export default{
       localStorage.removeItem('userData')
       localStorage.removeItem('selectedProject')
       localStorage.removeItem('latestCapturedImage')
+      localStorage.removeItem('appAndWebsiteUsed')
       this.$router.push({ name: 'login' })
     },
 

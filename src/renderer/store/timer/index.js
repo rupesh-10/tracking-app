@@ -181,23 +181,19 @@ export default{
             })
         },
         async endActivity({dispatch,state}){
-            if(state.checkAppsAndWebsitesInterval) 
-            {
-                clearInterval(state.checkAppsAndWebsitesInterval)
-            }
+          
+            clearInterval(state.checkAppsAndWebsitesInterval)
             localStorage.removeItem('appAndWebsiteUsed')
-            if(state.touchActivityInterval) 
-            {
-                clearInterval(state.touchActivityInterval)
-            }
+            clearInterval(state.touchActivityInterval)
             useApollo.activity.endActivity({projectUid:state.projectUid,activityUid:localStorage.getItem('activityUid')}).then(()=>{
                 dispatch('getTotalTodayTime')
                 dispatch('getTotalWeeksTime')
-                if(state.checkAppsAndWebsitesInterval) {clearInterval(state.checkAppsAndWebsitesInterval)}
-                if(state.touchActivityInterval) {clearInterval(state.touchActivityInterval)}
                 localStore.endActivity()
             }).catch(()=>{
                localStore.offlineEndActivity()
+            }).finally(()=>{
+                if(state.checkAppsAndWebsitesInterval) {clearInterval(state.checkAppsAndWebsitesInterval)}
+                if(state.touchActivityInterval) {clearInterval(state.touchActivityInterval)}
             })
         },
         getTotalTodayTime({commit,state}){
@@ -241,7 +237,7 @@ export default{
             if(!source){
                 source = { owner: {name:'desktop'},id:-1}
             }
-            if(systemIdleTime){
+            if(systemIdleTime > 5){
                 commit("SET_ACTIVITY_IDLE_TIME",state.activityIdleTime+1)
             }
             // if(systemIdleTime>state.lastInactivity){
