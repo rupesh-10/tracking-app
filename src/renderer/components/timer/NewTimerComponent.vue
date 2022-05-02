@@ -386,7 +386,7 @@ export default {
         this.$store.dispatch('timer/startActivityTracking')
 
         ipcRenderer.on('timerShortCutPressed', ()=>{
-          if(JSON.parse(localStorage.getItem('shortCutEnabled')) && !this.trackingOn && this.$route.name==='home'){
+          if(JSON.parse(localStorage.getItem('shortCutEnabled')) && this.$route.name==='home'){
             this.startTimer() 
           }
         }); 
