@@ -1,11 +1,13 @@
 'use strict'
 
-import { app, protocol, BrowserWindow,globalShortcut } from 'electron'
+import { app, protocol, BrowserWindow,globalShortcut,Menu, nativeImage, Tray } from 'electron'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 const isDevelopment = process.env.NODE_ENV !== 'production'
 let win;
 require('@electron/remote/main').initialize()
+const modal = require('electron-modal');
+let isQuiting;
 
 
 app.allowRendererProcessReuse = false
@@ -15,7 +17,40 @@ protocol.registerSchemesAsPrivileged([
   { scheme: 'app', privileges: { secure: true, standard: true } }
 ])
 
+app.on('before-quit', function () {
+  isQuiting = true;
+});
+
+let tray = null
+function createTray () {
+  const icon = 'wz-logo.ico' // required.
+  const trayicon = nativeImage.createFromPath(icon)
+  tray = new Tray(trayicon.resize({ width: 16 }))
+  const contextMenu = Menu.buildFromTemplate([
+    {
+      label: 'Show App',
+      click: () => {
+        win.show()
+      }
+    },
+    {
+      label: 'Quit',
+      click: () => {
+        isQuiting = true;
+        app.quit() // actually quit the app.
+      }
+    },
+  ])
+
+  tray.setContextMenu(contextMenu)
+}
+
+
+
 async function createWindow() {
+  if (!tray) { // if tray hasn't been created already.
+    createTray()
+  }
   // Create the browser window.
    win = new BrowserWindow({
     width: 368,
@@ -28,8 +63,19 @@ async function createWindow() {
       contextIsolation: false,
       enableRemoteModule: true,
       devTools: isDevelopment,
-    }
+    },
+    icon:'wz-logo.ico',
+    title:"Work Zone 1",
   })
+
+  win.on('close', function (event) {
+    if(!isQuiting){
+        event.preventDefault();
+        win.hide();
+    }
+
+    return false;
+});
 
   if (process.env.WEBPACK_DEV_SERVER_URL) {
     await win.loadURL(process.env.WEBPACK_DEV_SERVER_URL)
@@ -58,14 +104,15 @@ async function createWindow() {
 }
 
 
+
 // Quit when all windows are closed.
-app.on('window-all-closed', () => {
-  // On macOS it is common for applications and their menu bar
-  // to stay active until the user quits explicitly with Cmd + Q
-  if (process.platform !== 'darwin') {
-    app.quit()
-  }
-})
+// app.on('all-windows-closed', () => {
+//   if (!isQuiting) {
+//     event.preventDefault();
+//     window.hide();
+//     event.returnValue = false;
+//   }
+// })
 
 app.on('activate', () => {
   // On macOS it's common to re-create a window in the app when the
@@ -90,12 +137,16 @@ app.on('ready', async () => {
     }
   }
   createWindow()
+  modal.setup();
 
   globalShortcut.register('CommandOrControl+Shift+Alt+S',()=>{
     win.webContents.send('timerShortCutPressed')
   })
 
+
 })
+
+
 
 
 

@@ -1,9 +1,10 @@
 {
-  "name": "gec-tracker",
+  "name": "work-zone",
   "version": "0.1.0",
-  "productName": "GEC Tracker",
+  "productName": "Work Zone 1",
   "description": "This is the workplace app.",
   "author": "GEC",
+  "icon": "./wz-logo.ico",
   "private": true,
   "asar": true,
   "scripts": {
@@ -28,6 +29,8 @@
     "bootstrap-icons": "^1.7.2",
     "bootstrap-vue": "^2.21.2",
     "core-js": "^3.6.5",
+    "electron-modal": "^1.0.0",
+    "electrongui": "^1.4.5",
     "ffi-napi": "^4.0.3",
     "gkm": "^0.2.0",
     "iohook": "^0.9.3",

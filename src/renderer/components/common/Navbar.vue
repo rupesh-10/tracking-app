@@ -7,10 +7,10 @@
             </template>
             <!-- <b-dropdown-item href="#">Settings</b-dropdown-item>
             <b-dropdown-item href="#">About</b-dropdown-item> -->
-            <b-dropdown-item @click="logout" href="#">Logout</b-dropdown-item>
-            <b-dropdown-item @click="redirectToSetting">
+             <b-dropdown-item @click="redirectToSetting">
               Setting
             </b-dropdown-item>
+            <b-dropdown-item @click="logout" href="#">Logout</b-dropdown-item>
         </b-dropdown>
         <div class="report">
             <div class="name">{{ userData.name }}</div>

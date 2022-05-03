@@ -9,6 +9,8 @@
 
 <script>
 import Navbar from './components/common/Navbar.vue'
+const electron = window.require("electron");
+const { ipcRenderer } = electron;
 
 
 export default {
@@ -16,9 +18,13 @@ export default {
   components: {
     Navbar,
   },
-  // mounted() {
-  //   this.$router.push('/')
-  // },
+  mounted() {
+      ipcRenderer.on('timerShortCutPressed', ()=>{
+            if(this.shortCutEnabled && this.$route.name==='home'){
+            this.startTimerEvent = true
+          }
+        }); 
+  },
   computed: {
       online: {
         get() {
@@ -34,7 +40,20 @@ export default {
      
       loggedIn(){
         return this.$store.state.auth.loggedIn
+      },
+     shortCutEnabled:{
+      get(){
+          return this.$store.state.timer.shortCutEnabled
       }
+    },
+    startTimerEvent:{
+      get(){
+          return this.$store.state.timer.startTimerEvent
+      },
+      set(value){
+        return this.$store.commit('timer/SET_TIMER_EVENT',value)
+      }
+    }
   },
 };
 </script>

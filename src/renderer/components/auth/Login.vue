@@ -2,8 +2,8 @@
        <div class="regular-card work p-3">
            <div class="login-card">
                <div class="login-info">
-                   <img src="../../assets/images/avatar.png">
-                   <h1>GEC TRACKER</h1>
+                   <img src="../../assets/logo.svg">
+                   <h1>WORK ZONE 1</h1>
                    <p>
                        Please sign-in to your account
                    </p>

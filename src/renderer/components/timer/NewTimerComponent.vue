@@ -47,7 +47,7 @@ import ScreenCapturedImage from '../common/ScreenCapturedImage.vue'
 import IdleModal from '../common/IdleModal.vue'
 import TimerInfoModal from '../common/TimerInfoModal.vue'
 const electron = window.require("electron");
-const { desktopCapturer,ipcRenderer } = electron;
+const { desktopCapturer} = electron;
 import { powerMonitor, Notification } from "@electron/remote";
 
 
@@ -72,6 +72,7 @@ export default {
     };
   },
   mounted() {
+    console.log("mounted vayo")
    this.listenForEvents()
   },
   computed: {
@@ -193,7 +194,25 @@ export default {
       get(){
         return this.$store.state.timer.timerInterval
       }
-    }
+    },
+    shortCutEnabled:{
+      get(){
+          return this.$store.state.timer.shortCutEnabled
+      }
+    },
+    screenCaptureSound:{
+      get(){
+          return this.$store.state.timer.screenCaptureSound
+      }
+    },
+     startTimerEvent:{
+      get(){
+          return this.$store.state.timer.startTimerEvent
+      },
+      set(value){
+        return this.$store.commit('timer/SET_TIMER_EVENT',value)
+      }
+     }
   },
   watch: {
     trackingOn(value) {
@@ -216,7 +235,9 @@ export default {
       }
     },
     timerInterval(value){
-      if(value && this.timeInterval){clearInterval(this.timeInterval)}
+      if(value && this.timeInterval){
+        clearInterval(this.timeInterval)
+        }
     },
     online(value){
         if (!value && this.trackingOn) {
@@ -224,6 +245,13 @@ export default {
           title: "Connection Lost",
           body: "We couldn't find network, But still we are tracking your time",
         });
+      }
+    },
+    startTimerEvent(value){
+      console.log(value)
+      if(value){
+        console.log("timer start gar")
+        this.startTimer()
       }
     }
   },
@@ -238,6 +266,7 @@ export default {
       }, 1000);
     },
     startTimer() {
+      this.startTimerEvent = false
       if (!this.trackingOn) {
         this.startSession = new Date();
         this.$store.dispatch('timer/startActivity').then(()=>{
@@ -245,7 +274,6 @@ export default {
             this.trackingOn = true;
             setTimeout(()=>{if(this.trackingOn)this.fullscreenScreenshot()},5000)
         })
-       
         return;
       }
       this.endSession = new Date();
@@ -290,7 +318,7 @@ export default {
 
       if (this.minutes == 60) {
         this.minutes = 0;
-        if(this.weeksTime.minutes >=60)  {this.weeksTime.minutes = 0;}
+        if(this.weeksTime.minutes >=60)  {this.weeksTime.minutes = 0;}    
         if(this.todaysTime.minutes >= 60) {this.todaysTime.minutes = 0;}
         this.todaysTime.hours = ++this.todaysTime.hours
         this.weeksTime.hours = ++this.weeksTime.hours
@@ -310,7 +338,7 @@ export default {
             images.push(source.thumbnail.toDataURL())
           })
             this.$store.dispatch("timer/saveScreenshot", images);
-            if(JSON.parse(localStorage.getItem('screenCaptureSound'))){
+            if(this.screenCaptureSound){
               this.notifyScreenCapture();
             }
         })
@@ -385,11 +413,7 @@ export default {
         this.$store.dispatch('timer/fetchImage')
         this.$store.dispatch('timer/startActivityTracking')
 
-        ipcRenderer.on('timerShortCutPressed', ()=>{
-          if(JSON.parse(localStorage.getItem('shortCutEnabled')) && this.$route.name==='home'){
-            this.startTimer() 
-          }
-        }); 
+      
         
     }
   },

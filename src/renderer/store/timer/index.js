@@ -39,6 +39,9 @@ export default{
         project:JSON.parse(localStorage.getItem('selectedProject')),
         projectUid:JSON.parse(localStorage.getItem('selectedProject'))?.uuid,
         timerInterval:false,
+        screenCaptureSound: JSON.parse(localStorage.getItem('screenCaptureSound')),
+        shortCutEnabled: JSON.parse(localStorage.getItem('shortCutEnabled')),
+        startTimerEvent:false
     },
     getters:{
 
@@ -121,6 +124,15 @@ export default{
         },
         SET_TIMER_INTERVAL(state,payload){
             state.timerInterval = payload
+        },
+        SET_SCREEN_CAPTURE_SOUND(state,payload){
+            state.screenCaptureSound = payload
+        },
+        SET_SHORCUT_ENABLED(state,payload){
+            state.shortCutEnabled = payload
+        },
+        SET_TIMER_EVENT(state,payload){
+            state.startTimerEvent = payload
         }
 
     },
