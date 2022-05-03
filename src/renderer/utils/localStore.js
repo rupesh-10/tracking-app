@@ -1,5 +1,8 @@
 const moment = require('moment')
 import store from '../store'
+import {formatDate} from '../const/timer'
+import useApollo from '../graphql/useApollo'
+
 export default {
     
      startActivity(uuid){
@@ -21,7 +24,7 @@ export default {
     },
     offlineStartActivity(){
         const randToken = Math.random().toString(36).substr(2);
-        const startActivity = {activityUid:randToken,started_at:moment()}
+        const startActivity = {activityUid:randToken,started_at:formatDate(moment())}
         if(localStorage.getItem('offlineActivity')){
             let offlineActivity = JSON.parse(localStorage.getItem('offlineActivity'))
             offlineActivity.push(startActivity)
@@ -131,9 +134,15 @@ export default {
         const offlineActivity = JSON.parse(localStorage.getItem('offlineActivity'))
         if(offlineActivity){
             offlineActivity.forEach((activity)=>{
-                if(activity.ended_at){
-                    console.log(activity)
-                }
+                useApollo.activity.startActivity({projectUid:JSON.parse(localStorage.getItem('selectedProject')).uuid,startTime:activity.started_at}).then(res=>{
+                    const startActivityUuid = res.data.startActivity.uuid
+                    activity.screenCasts.forEach((screenCast)=>{
+                        useApollo.activity.postScreencastActivity({activityUid:startActivityUuid,startTime:screenCast.startTime,endTime:screenCast.endTime,images:screenCast.images,mouseMoves:screenCast.mouseMoves,keyClicks:screenCast.keyClicks}).then(()=>{})
+                    })
+                    activity.appActivities.forEach((appActivity)=>{
+                        useApollo.activity.postAppActivity({activityUid:startActivityUuid,startTime:appActivity.startTime,endTime:appActivity.endTime,idleTime:appActivity.idleTime,keyClicks:appActivity.keyClicks,mouseMoves:appActivity.mouseMoves}).then(()=>{})
+                    })
+                })
             })
          }
     }

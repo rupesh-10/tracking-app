@@ -1,8 +1,8 @@
 import gql from 'graphql-tag'
 export default{
 startActivity: gql `
-mutation startActivity($projectUid:String!) {
-  startActivity(projectUid:$projectUid){
+mutation startActivity($projectUid:String!,$startTime:DateTime) {
+  startActivity(projectUid:$projectUid,startTime:$startTime){
     uuid
     startedAt
   }
