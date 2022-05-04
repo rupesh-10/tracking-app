@@ -162,6 +162,7 @@ export default{
                                   localStore.screenCast()
                                 }
                             }).catch(()=>{
+                                data.images = images
                                 localStore.offlineScreenCast(data)
                             }).finally(()=>{
                                 localStorage.setItem('startTimeForCapture',formatDate(currentTime))

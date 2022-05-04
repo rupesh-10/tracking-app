@@ -137,10 +137,33 @@ export default {
                 useApollo.activity.startActivity({projectUid:JSON.parse(localStorage.getItem('selectedProject')).uuid,startTime:activity.started_at}).then(res=>{
                     const startActivityUuid = res.data.startActivity.uuid
                     activity.screenCasts.forEach((screenCast)=>{
-                        useApollo.activity.postScreencastActivity({activityUid:startActivityUuid,startTime:screenCast.startTime,endTime:screenCast.endTime,images:screenCast.images,mouseMoves:screenCast.mouseMoves,keyClicks:screenCast.keyClicks}).then(()=>{})
+                        const screenCaptureImages = screenCast.images
+                        function urltoFile(fileUrl, filename, mimeType){
+                            return (fetch(fileUrl)
+                                .then(function(res){return res.arrayBuffer();})
+                                .then(function(buf){return new File([buf], filename,{type:mimeType});})
+                            );
+                        }
+                        let convertedImages = []
+                        screenCaptureImages.forEach((image,index)=>{
+                            urltoFile(image,'screenshot'+index,'image/png').then(file=>{
+                               convertedImages.push(file)
+                               if(index == screenCaptureImages.length-1){
+                                   const data = {activityUid:startActivityUuid,startTime:screenCast.startTime,endTime:screenCast.endTime,images:convertedImages,keyClicks:screenCast.keyClicks,mouseMoves:screenCast.mouseMoves}
+                                    useApollo.activity.postScreencastActivity(data).then(()=>{
+                                      console.log("hi")
+                                   })
+                               }
+       
+                           })
+                       })
+                        // useApollo.activity.postScreencastActivity({activityUid:startActivityUuid,startTime:screenCast.startTime,endTime:screenCast.endTime,images:screenCast.images,mouseMoves:screenCast.mouseMoves,keyClicks:screenCast.keyClicks}).then(()=>{})
                     })
                     activity.appActivities.forEach((appActivity)=>{
-                        useApollo.activity.postAppActivity({activityUid:startActivityUuid,startTime:appActivity.startTime,endTime:appActivity.endTime,idleTime:appActivity.idleTime,keyClicks:appActivity.keyClicks,mouseMoves:appActivity.mouseMoves}).then(()=>{})
+                        useApollo.activity.setAppActivity({activityUid:startActivityUuid,name:appActivity.name,startTime:appActivity.startTime,endTime:appActivity.endTime,idleTime:appActivity.idleTime,keyClicks:appActivity.keyClicks,mouseMoves:appActivity.mouseMoves}).then(()=>{})
+                    })
+                    activity.webActivities.forEach((webActivity)=>{
+                        useApollo.activity.setWebActivity({activityUid:startActivityUuid,name:webActivity.url,startTime:webActivity.startTime,endTime:webActivity.endTime,idleTime:webActivity.idleTime,keyClicks:webActivity.keyClicks,mouseMoves:webActivity.mouseMoves}).then(()=>{})
                     })
                 })
             })
