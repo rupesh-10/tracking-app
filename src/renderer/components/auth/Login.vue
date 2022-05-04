@@ -48,13 +48,21 @@
                         vid="password"
                         rules="required|max:256"
                     > -->
+                    <b-input-group >
                     <b-form-input
                         id="login-password"
                         v-model="userPassword"
                         name="login-password"
                         @keydown.space.prevent
-                        type="password"
-                        />
+                        :type="passwordFieldType"
+                    />
+                 <b-input-group-append is-text @click="togglePasswordVisibility">
+                     <span class="btn" style="cursor:pointer;">
+                    <b-icon :icon="passwordToggleIcon" scale="1.5"></b-icon>
+                     <!-- <i :class="`fa fa-${passwordToggleIcon}`" style="height" ></i> -->
+                     </span>
+                  </b-input-group-append>
+                    </b-input-group>
                         <!-- <small class="text-danger">{{ errors[0] }}</small>
                     </Field> -->
                     </b-form-group>
@@ -90,8 +98,14 @@ export default {
             formError:false,
             errorMessage:'',
             isProcessing:false,
+            passwordFieldType:'password',
 
         }
+    },
+    computed:{
+    passwordToggleIcon() {
+        return this.passwordFieldType === 'password' ? 'eye' : 'eye-slash'
+    },
     },
   methods:{
       login(){
@@ -125,14 +139,9 @@ export default {
                 ).finally(()=>{
                     this.isProcessing = false
                 })
-        //   if(this.userEmail==='test' && this.userPassword==='test'){
-        //     localStorage.setItem('userData', JSON.stringify('testUser'))
-        //      this.formError = false
-        //     return this.$router.push({ name: "home"})
-        //   }
-        //   else{
-        //       this.formError = true
-        //   }
+      },
+      togglePasswordVisibility(){
+          this.passwordFieldType = this.passwordFieldType==='password' ? 'text' : 'password'
       }
   }
 }

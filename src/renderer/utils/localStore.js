@@ -53,8 +53,7 @@ export default {
         localStorage.setItem('offlineActivity',JSON.stringify(offlineActivity))
         } 
         else{
-            const onlineActivity =  {activityUid:currentActivity,ended_at:moment()}
-            localStorage.setItem('onlineActivity',JSON.stringify([onlineActivity]))
+           this.setOnlineStartedOfflineActivity(null,'endactivity')
         }
     },
 
@@ -78,12 +77,80 @@ export default {
                }
            }
            else{
-               const onlineStartedOfflineActivity = {activityUid:currentActivity,screenCasts:[data]}
-               localStorage.setItem('offlineActivity',JSON.stringify(onlineStartedOfflineActivity))
+               this.setOnlineStartedOfflineActivity(data,'screencast')
            }
             localStorage.setItem('offlineActivity',JSON.stringify(offlineActivity))
             this.screenCast()
         } 
+    },
+    setOnlineStartedOfflineActivity(data,type){
+        let onlineStartedOfflineActivity = JSON.parse(localStorage.getItem('onlineStartedOfflineActivity'))
+        const currentActivity = localStorage.getItem('activityUid')
+        if(onlineStartedOfflineActivity){
+            let foundActivity = onlineStartedOfflineActivity.find(activity => activity.activityUid == currentActivity)
+            if(foundActivity){
+                let screenCasts = foundActivity.screenCasts
+                let appActivities = foundActivity.appActivities
+                let webActivities = foundActivity.webActivities
+                switch(type){
+                    case 'screencast':
+                        if(screenCasts){
+                            screenCasts.push(data)
+                        }
+                        else{
+                            foundActivity.screenCasts = [data]
+                        }
+                        break;
+                    
+                    case 'app':
+                        if(appActivities){
+                            appActivities.push(data)
+                        }
+                        else{
+                            foundActivity.appActivities = [data]
+                        }
+                        break;
+                    
+                    case 'website':
+                        if(webActivities){
+                            webActivities.push(data)
+                        }
+                        else{
+                            foundActivity.webActivities = [data]
+                        }
+                        break;
+
+                    case 'endactivity':
+                        foundActivity.end_time = formatDate(moment())
+                        break;
+                }
+               
+            }
+            localStorage.setItem('onlineStartedOfflineActivity',JSON.stringify(onlineStartedOfflineActivity))
+        }
+        else{
+            switch(type){
+                case 'screencast':
+                     onlineStartedOfflineActivity = [{activityUid:currentActivity,screenCasts:[data]}]
+                    localStorage.setItem('onlineStartedOfflineActivity',JSON.stringify(onlineStartedOfflineActivity))
+                    break;
+
+                case 'app':
+                     onlineStartedOfflineActivity = [{activityUid:currentActivity,appActivities:[data]}]
+                    localStorage.setItem('onlineStartedOfflineActivity',JSON.stringify(onlineStartedOfflineActivity))
+                    break;
+                
+                case 'website':
+                     onlineStartedOfflineActivity = [{activityUid:currentActivity,webActivities:[data]}]
+                    localStorage.setItem('onlineStartedOfflineActivity',JSON.stringify(onlineStartedOfflineActivity))
+                    break;
+                case 'endactivity':
+                    onlineStartedOfflineActivity = [{activityUid:currentActivity,end_time:formatDate(moment())}]
+                    localStorage.setItem('onlineStartedOfflineActivity',JSON.stringify(onlineStartedOfflineActivity))
+                    break;
+            }
+            
+        }
     },
 
     appActivity(){
@@ -92,7 +159,6 @@ export default {
     },
 
     offlineAppActivity(data){
-        console.log('hehehehhehee')
         const offlineActivity = JSON.parse(localStorage.getItem('offlineActivity'))
         const currentActivity = localStorage.getItem('activityUid')
         if(offlineActivity){
@@ -105,6 +171,9 @@ export default {
                else{
                    foundActivity.appActivities = [data]
                }
+           }
+           else{
+            this.setOnlineStartedOfflineActivity(data,'app')
            }
             localStorage.setItem('offlineActivity',JSON.stringify(offlineActivity))
         } 
@@ -124,13 +193,15 @@ export default {
                    foundActivity.webActivities = [data]
                }
            }
+           else{
+            this.setOnlineStartedOfflineActivity(data,'website')
+           }
             localStorage.setItem('offlineActivity',JSON.stringify(offlineActivity))
             this.screenCast()
         } 
     },
 
-
-    checkOfflineActivity(){
+    postOfflineActivity(){
         const offlineActivity = JSON.parse(localStorage.getItem('offlineActivity'))
         if(offlineActivity){
             offlineActivity.forEach((activity)=>{
@@ -168,6 +239,52 @@ export default {
                 })
             })
          }
-    }
+    },
+
+    postOnlineCreatedOfflineActivity(){
+        const onlineStartedOfflineActivity = JSON.parse(localStorage.getItem('onlineStartedOfflineActivity'))
+        if(onlineStartedOfflineActivity){
+            onlineStartedOfflineActivity.forEach((activity)=>{
+                useApollo.activity.startActivity({projectUid:JSON.parse(localStorage.getItem('selectedProject')).uuid,startTime:activity.started_at}).then(res=>{
+                    const startActivityUuid = res.data.startActivity.uuid
+                    activity.screenCasts.forEach((screenCast)=>{
+                        const screenCaptureImages = screenCast.images
+                        function urltoFile(fileUrl, filename, mimeType){
+                            return (fetch(fileUrl)
+                                .then(function(res){return res.arrayBuffer();})
+                                .then(function(buf){return new File([buf], filename,{type:mimeType});})
+                            );
+                        }
+                        let convertedImages = []
+                        screenCaptureImages.forEach((image,index)=>{
+                            urltoFile(image,'screenshot'+index,'image/png').then(file=>{
+                               convertedImages.push(file)
+                               if(index == screenCaptureImages.length-1){
+                                   const data = {activityUid:startActivityUuid,startTime:screenCast.startTime,endTime:screenCast.endTime,images:convertedImages,keyClicks:screenCast.keyClicks,mouseMoves:screenCast.mouseMoves}
+                                    useApollo.activity.postScreencastActivity(data).then(()=>{
+                                      
+                                   })
+                               }
+       
+                           })
+                       })
+                        // useApollo.activity.postScreencastActivity({activityUid:startActivityUuid,startTime:screenCast.startTime,endTime:screenCast.endTime,images:screenCast.images,mouseMoves:screenCast.mouseMoves,keyClicks:screenCast.keyClicks}).then(()=>{})
+                    })
+                    activity.appActivities.forEach((appActivity)=>{
+                        useApollo.activity.setAppActivity({activityUid:startActivityUuid,name:appActivity.name,startTime:appActivity.startTime,endTime:appActivity.endTime,idleTime:appActivity.idleTime,keyClicks:appActivity.keyClicks,mouseMoves:appActivity.mouseMoves}).then(()=>{})
+                    })
+                    activity.webActivities.forEach((webActivity)=>{
+                        useApollo.activity.setWebActivity({activityUid:startActivityUuid,name:webActivity.url,startTime:webActivity.startTime,endTime:webActivity.endTime,idleTime:webActivity.idleTime,keyClicks:webActivity.keyClicks,mouseMoves:webActivity.mouseMoves}).then(()=>{})
+                    })
+                })
+            })
+         }
+    },
+
+    checkOfflineActivity(){
+        this.postOfflineActivity()
+        this.postOnlineCreatedOfflineActivity()
+    },
+    
 
 }
