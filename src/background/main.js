@@ -78,7 +78,7 @@ async function createWindow() {
       enableRemoteModule: true,
       devTools: true,
     },
-    icon:'wz-logo.ico',
+    icon:path.join(__dirname, 'wz-logo.ico'),
     title:"Work Zone 1",
   })
 
