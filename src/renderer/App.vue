@@ -19,8 +19,11 @@ export default {
     Navbar,
   },
   mounted() {
+    console.log('hhhhhhhhhh')
       ipcRenderer.on('timerShortCutPressed', ()=>{
+        console.log('yaha')
             if(this.shortCutEnabled && this.$route.name==='home'){
+              console.log('herherher')
             this.startTimerEvent = true
           }
         }); 

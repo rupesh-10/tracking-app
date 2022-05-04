@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 'use strict'
 
 import { app, protocol, BrowserWindow,globalShortcut,Menu, nativeImage, Tray } from 'electron'
@@ -6,9 +7,22 @@ import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 const isDevelopment = process.env.NODE_ENV !== 'production'
 let win;
 require('@electron/remote/main').initialize()
-const modal = require('electron-modal');
 let isQuiting;
+const path = require('path')
 
+const gotTheLock = app.requestSingleInstanceLock()
+    
+if (!gotTheLock) {
+  app.quit()
+} else {
+  app.on('second-instance', (event, commandLine, workingDirectory) => {
+    // Someone tried to run a second instance, we should focus our window.
+    if (win) {
+      if (win.isMinimized()) win.restore()
+      win.focus()
+    }
+  })
+}
 
 app.allowRendererProcessReuse = false
 
@@ -23,7 +37,7 @@ app.on('before-quit', function () {
 
 let tray = null
 function createTray () {
-  const icon = 'wz-logo.ico' // required.
+  const icon = path.join(__dirname, 'wz-logo.ico') // required.
   const trayicon = nativeImage.createFromPath(icon)
   tray = new Tray(trayicon.resize({ width: 16 }))
   const contextMenu = Menu.buildFromTemplate([
@@ -56,13 +70,13 @@ async function createWindow() {
     width: 368,
     height: 630,
     maximizable:false,
-    resizable:isDevelopment,
+    resizable:true,
     autoHideMenuBar: true,
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
       enableRemoteModule: true,
-      devTools: isDevelopment,
+      devTools: true,
     },
     icon:'wz-logo.ico',
     title:"Work Zone 1",
@@ -85,34 +99,11 @@ async function createWindow() {
     // Load the index.html when not in development
     win.loadURL('app://./index.html')
   }
-
-    // Set a variable when the app is quitting.
-    // var isAppQuitting = false;
-    // app.on('before-quit', function () {
-    //     isAppQuitting = true;
-    // });
-  
-    // win.on('close', function (evt) {
-    //     if (!isAppQuitting) {
-    //         evt.preventDefault();
-    //         win.hide();
-    //     }
-    // });
   
     win.webContents.setBackgroundThrottling(false);
 
 }
 
-
-
-// Quit when all windows are closed.
-// app.on('all-windows-closed', () => {
-//   if (!isQuiting) {
-//     event.preventDefault();
-//     window.hide();
-//     event.returnValue = false;
-//   }
-// })
 
 app.on('activate', () => {
   // On macOS it's common to re-create a window in the app when the
@@ -120,9 +111,6 @@ app.on('activate', () => {
   if (BrowserWindow.getAllWindows().length === 0) createWindow()
 })
 
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-// Some APIs can only be used after this event occurs.
 app.on('ready', async () => {
   if (isDevelopment && !process.env.IS_TEST) {
     // Install Vue Devtools
@@ -137,8 +125,6 @@ app.on('ready', async () => {
     }
   }
   createWindow()
-  modal.setup();
-
   globalShortcut.register('CommandOrControl+Shift+Alt+S',()=>{
     win.webContents.send('timerShortCutPressed')
   })

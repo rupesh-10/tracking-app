@@ -72,7 +72,6 @@ export default {
     };
   },
   mounted() {
-    console.log("mounted vayo")
    this.listenForEvents()
   },
   computed: {

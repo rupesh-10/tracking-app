@@ -140,9 +140,9 @@ export default{
       this.toggleModal = false
        this.$store.dispatch('timer/dispatchAppAndWebsiteUsed',true).then(()=>{
         this.$store.dispatch('timer/endActivity').then(()=>{
-           if(this.modalFor=='project') this.$router.replace({ name: 'projects' })
-            else if(this.modalFor=='logout') this.logout()
-            else if(this.modalFor=='setting') this.$router.replace({name:'setting'})
+           if(this.modalFor=='project') {this.$router.replace({ name: 'projects' })}
+            else if(this.modalFor=='logout') {this.logout()}
+            else if(this.modalFor=='setting'){ this.$router.replace({name:'setting'}) }
             this.timerInterval = false
             this.resetTime()
         })
