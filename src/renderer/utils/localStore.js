@@ -24,7 +24,7 @@ export default {
     },
     offlineStartActivity(){
         const randToken = Math.random().toString(36).substr(2);
-        const startActivity = {activityUid:randToken,started_at:formatDate(moment())}
+        const startActivity = {projectUid:JSON.parse(localStorage.getItem('selectedProject')).uuid,activityUid:randToken,started_at:formatDate(moment())}
         if(localStorage.getItem('offlineActivity')){
             let offlineActivity = JSON.parse(localStorage.getItem('offlineActivity'))
             offlineActivity.push(startActivity)
@@ -49,7 +49,7 @@ export default {
         const currentActivity = localStorage.getItem('activityUid')
         if(offlineActivity){
         let foundActivity = offlineActivity.find(activity => activity.activityUid == currentActivity)
-        if(foundActivity)foundActivity.ended_at = moment()
+        if(foundActivity)foundActivity.ended_at = formatDate(moment())
         localStorage.setItem('offlineActivity',JSON.stringify(offlineActivity))
         } 
         else{
@@ -131,21 +131,21 @@ export default {
         else{
             switch(type){
                 case 'screencast':
-                     onlineStartedOfflineActivity = [{activityUid:currentActivity,screenCasts:[data]}]
+                     onlineStartedOfflineActivity = [{projectUid:JSON.parse(localStorage.getItem('selectedProject')).uuid,activityUid:currentActivity,screenCasts:[data]}]
                     localStorage.setItem('onlineStartedOfflineActivity',JSON.stringify(onlineStartedOfflineActivity))
                     break;
 
                 case 'app':
-                     onlineStartedOfflineActivity = [{activityUid:currentActivity,appActivities:[data]}]
+                     onlineStartedOfflineActivity = [{projectUid:JSON.parse(localStorage.getItem('selectedProject')).uuid,activityUid:currentActivity,appActivities:[data]}]
                     localStorage.setItem('onlineStartedOfflineActivity',JSON.stringify(onlineStartedOfflineActivity))
                     break;
                 
                 case 'website':
-                     onlineStartedOfflineActivity = [{activityUid:currentActivity,webActivities:[data]}]
+                     onlineStartedOfflineActivity = [{projectUid:JSON.parse(localStorage.getItem('selectedProject')).uuid,activityUid:currentActivity,webActivities:[data]}]
                     localStorage.setItem('onlineStartedOfflineActivity',JSON.stringify(onlineStartedOfflineActivity))
                     break;
                 case 'endactivity':
-                    onlineStartedOfflineActivity = [{activityUid:currentActivity,end_time:formatDate(moment())}]
+                    onlineStartedOfflineActivity = [{projectUid:JSON.parse(localStorage.getItem('selectedProject')).uuid,activityUid:currentActivity,end_time:formatDate(moment())}]
                     localStorage.setItem('onlineStartedOfflineActivity',JSON.stringify(onlineStartedOfflineActivity))
                     break;
             }
@@ -201,13 +201,17 @@ export default {
         } 
     },
 
-    postOfflineActivity(){
+    async postOfflineActivity(){
         const offlineActivity = JSON.parse(localStorage.getItem('offlineActivity'))
         if(offlineActivity){
-            offlineActivity.forEach((activity)=>{
-                useApollo.activity.startActivity({projectUid:JSON.parse(localStorage.getItem('selectedProject')).uuid,startTime:activity.started_at}).then(res=>{
-                    const startActivityUuid = res.data.startActivity.uuid
-                    activity.screenCasts.forEach((screenCast)=>{
+            offlineActivity.forEach((activity,activityIndex)=>{
+                useApollo.activity.startActivity({projectUid:activity.projectUid,startTime:activity.started_at}).then(res=>{
+                const startActivityUuid = res.data.startActivity.uuid
+                if(!activity.ended_at){
+                    localStorage.setItem('activityUid',startActivityUuid)
+                }
+                if(activity.screenCasts){
+                    activity.screenCasts.forEach(async (screenCast,screenCastIndex)=>{
                         const screenCaptureImages = screenCast.images
                         function urltoFile(fileUrl, filename, mimeType){
                             return (fetch(fileUrl)
@@ -216,13 +220,14 @@ export default {
                             );
                         }
                         let convertedImages = []
-                        screenCaptureImages.forEach((image,index)=>{
-                            urltoFile(image,'screenshot'+index,'image/png').then(file=>{
+                       await screenCaptureImages.forEach(async (image,index)=>{
+                            await urltoFile(image,'screenshot'+index,'image/png').then(async(file)=>{
                                convertedImages.push(file)
                                if(index == screenCaptureImages.length-1){
                                    const data = {activityUid:startActivityUuid,startTime:screenCast.startTime,endTime:screenCast.endTime,images:convertedImages,keyClicks:screenCast.keyClicks,mouseMoves:screenCast.mouseMoves}
-                                    useApollo.activity.postScreencastActivity(data).then(()=>{
-                                      console.log("hi")
+                                   await useApollo.activity.postScreencastActivity(data).then(()=>{
+                                        offlineActivity[activityIndex].screenCasts.splice(screenCastIndex)
+                                        checkEmptyActivity(activityIndex)
                                    })
                                }
        
@@ -230,12 +235,43 @@ export default {
                        })
                         // useApollo.activity.postScreencastActivity({activityUid:startActivityUuid,startTime:screenCast.startTime,endTime:screenCast.endTime,images:screenCast.images,mouseMoves:screenCast.mouseMoves,keyClicks:screenCast.keyClicks}).then(()=>{})
                     })
-                    activity.appActivities.forEach((appActivity)=>{
-                        useApollo.activity.setAppActivity({activityUid:startActivityUuid,name:appActivity.name,startTime:appActivity.startTime,endTime:appActivity.endTime,idleTime:appActivity.idleTime,keyClicks:appActivity.keyClicks,mouseMoves:appActivity.mouseMoves}).then(()=>{})
+                }
+                    if(activity.appActivities){
+                    activity.appActivities.forEach((appActivity,appIndex)=>{
+                        useApollo.activity.setAppActivity({activityUid:startActivityUuid,name:appActivity.name,startTime:appActivity.startTime,endTime:appActivity.endTime,idleTime:appActivity.idleTime,keyClicks:appActivity.keyClicks,mouseMoves:appActivity.mouseMoves}).then(()=>{
+                            offlineActivity[activityIndex].appActivities.splice(appIndex)
+                            checkEmptyActivity(activityIndex)
+
+                        })
                     })
-                    activity.webActivities.forEach((webActivity)=>{
-                        useApollo.activity.setWebActivity({activityUid:startActivityUuid,name:webActivity.url,startTime:webActivity.startTime,endTime:webActivity.endTime,idleTime:webActivity.idleTime,keyClicks:webActivity.keyClicks,mouseMoves:webActivity.mouseMoves}).then(()=>{})
+                }
+
+                    if(activity.webActivities){
+                    activity.webActivities.forEach((webActivity,webIndex)=>{
+                        useApollo.activity.setWebActivity({activityUid:startActivityUuid,name:webActivity.url,startTime:webActivity.startTime,endTime:webActivity.endTime,idleTime:webActivity.idleTime,keyClicks:webActivity.keyClicks,mouseMoves:webActivity.mouseMoves}).then(()=>{
+                            offlineActivity[activityIndex].webActivities.splice(webIndex)
+                            checkEmptyActivity(activityIndex)
+
+                        })
                     })
+                }
+                function checkEmptyActivity(activityIndex){
+                    const activity = offlineActivity[activityIndex]
+                    console.log((activity.screenCasts.length===0) && (!activity.appActivities || activity.appActivities.length===0) && (!activity.webActivities ||activity.webActivities.length===0)  )
+                    if((activity.screenCasts.length===0) && (!activity.appActivities || activity.appActivities.length===0) && (!activity.webActivities ||activity.webActivities.length===0)){
+                        if(activity.ended_at){
+                            useApollo.activity.endActivity({projectUid:activity.projectUid,activityUid:startActivityUuid,endTime:activity.ended_at})
+                        }
+                        offlineActivity.splice(activityIndex)
+                    }
+                    if(offlineActivity.length===0){
+                        localStorage.removeItem('offlineActivity')
+                    }
+                    else{
+                        localStorage.setItem('offlineActivity',JSON.stringify(offlineActivity))
+                    }
+    
+                    }
                 })
             })
          }
@@ -245,8 +281,7 @@ export default {
         const onlineStartedOfflineActivity = JSON.parse(localStorage.getItem('onlineStartedOfflineActivity'))
         if(onlineStartedOfflineActivity){
             onlineStartedOfflineActivity.forEach((activity)=>{
-                useApollo.activity.startActivity({projectUid:JSON.parse(localStorage.getItem('selectedProject')).uuid,startTime:activity.started_at}).then(res=>{
-                    const startActivityUuid = res.data.startActivity.uuid
+                    const startActivityUuid = activity.activityUid
                     activity.screenCasts.forEach((screenCast)=>{
                         const screenCaptureImages = screenCast.images
                         function urltoFile(fileUrl, filename, mimeType){
@@ -276,7 +311,6 @@ export default {
                     activity.webActivities.forEach((webActivity)=>{
                         useApollo.activity.setWebActivity({activityUid:startActivityUuid,name:webActivity.url,startTime:webActivity.startTime,endTime:webActivity.endTime,idleTime:webActivity.idleTime,keyClicks:webActivity.keyClicks,mouseMoves:webActivity.mouseMoves}).then(()=>{})
                     })
-                })
             })
          }
     },
